@@ -25,7 +25,7 @@ export default function LoginPage() {
       console.log("User saved:", response.data.user);
 
     } catch (err) {
-      setError("Invalid email or password")
+      setError("Invalid email or password", err);
 
     } finally {
       setLoading(false)
