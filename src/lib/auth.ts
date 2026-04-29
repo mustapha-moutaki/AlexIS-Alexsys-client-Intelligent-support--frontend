@@ -1,4 +1,4 @@
-import { User } from "../types/User";
+import {User} from "@/src/types/User";
 
 export const saveToken =  (token: string)=>{
     localStorage.setItem(
