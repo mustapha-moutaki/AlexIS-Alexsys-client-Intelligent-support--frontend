@@ -4,13 +4,14 @@ import { useState } from "react"
 import LoginForm from "@/src/features/auth/components/LoginForm"
 import { login } from "@/src/features/auth/services/auth.service"
 import { saveToken, saveUser } from "@/src/lib/auth";
+import useAuthStore from "@/src/store/uthStore";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-
+  const setAuth = useAuthStore((state:any)=> state.setAuth)
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError("")
@@ -21,11 +22,11 @@ export default function LoginPage() {
       console.log("Login success:", response.data)
       saveToken(response.data.accessToken)
       saveUser(response.data.user)
-      console.log("Token saved:", response.data.accessToken);
-      console.log("User saved:", response.data.user);
+     
+      setAuth(response.data.user, response.data.accessToken);
 
     } catch (err) {
-      setError("Invalid email or password", err);
+      setError("Invalid email or password");
 
     } finally {
       setLoading(false)
