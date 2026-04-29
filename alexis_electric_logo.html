@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AlexIS — Reset Password</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cyan: #52C1DE;
+    --purple: #371450;
+    --purple-mid: #4a1b6d;
+    --black: #030305;
+    --glass: rgba(255,255,255,0.05);
+    --border: rgba(255,255,255,0.08);
+    --text-muted: #6b7280;
+    --text-dim: #374151;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--black);
+    font-family: 'DM Sans', sans-serif;
+    color: #fff;
+    overflow: hidden;
+  }
+
+  /* ── LAYOUT ── */
+  .page {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: 100vh;
+    position: relative;
+  }
+
+  /* ── LEFT — FORM ── */
+  .left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem 5rem;
+    position: relative;
+    z-index: 10;
+    background: rgba(3,3,5,0.95);
+    border-right: 1px solid var(--border);
+  }
+
+  .logo-small {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 3.5rem;
+  }
+
+  .logo-small svg { width: 28px; height: 28px; }
+
+  .logo-small span {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: 0.12em;
+    color: #fff;
+  }
+
+  .form-eyebrow {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 0.75rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.1s forwards;
+  }
+
+  .form-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.6rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 0.75rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+
+  .form-title span { color: var(--cyan); }
+
+  .form-subtitle {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+    max-width: 340px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.3s forwards;
+  }
+
+  .field {
+    margin-bottom: 1.25rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.4s forwards;
+  }
+
+  .field label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #9ca3af;
+    margin-bottom: 0.5rem;
+  }
+
+  .field input {
+    width: 100%;
+    padding: 0.9rem 1.1rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  }
+
+  .field input::placeholder { color: #374151; }
+
+  .field input:focus {
+    border-color: var(--cyan);
+    background: rgba(82,193,222,0.04);
+    box-shadow: 0 0 0 3px rgba(82,193,222,0.08);
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 1rem;
+    background: var(--cyan);
+    border: none;
+    border-radius: 12px;
+    color: var(--black);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+    margin-top: 0.5rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.5s forwards;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-submit::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%);
+    transform: translateX(-100%);
+    transition: transform 0.5s;
+  }
+
+  .btn-submit:hover { background: #6ed3eb; transform: translateY(-1px); box-shadow: 0 8px 32px rgba(82,193,222,0.3); }
+  .btn-submit:hover::after { transform: translateX(100%); }
+  .btn-submit:active { transform: scale(0.98); }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.75rem 0;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.6s forwards;
+  }
+
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .divider span { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; }
+
+  .back-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.65s forwards;
+  }
+  .back-link:hover { color: var(--cyan); }
+  .back-link svg { width: 14px; height: 14px; }
+
+  .bottom-tag {
+    position: absolute;
+    bottom: 2rem;
+    left: 5rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #1f2937;
+    font-weight: 600;
+  }
+
+  /* ── RIGHT — VISUAL ── */
+  .right {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--black);
+  }
+
+  /* WebGL canvas via JS */
+  #rays-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+  }
+
+  .right-content {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  /* Animated logo */
+  .logo-main {
+    width: 140px;
+    height: auto;
+    margin-bottom: 2.5rem;
+    filter: drop-shadow(0 0 30px rgba(82,193,222,0.35));
+  }
+
+  .brand-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    background: linear-gradient(135deg, #fff 30%, var(--cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+  }
+
+  .brand-tagline {
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    margin-bottom: 3rem;
+  }
+
+  /* Floating stat cards */
+  .stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 260px;
+  }
+
+  .stat-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    backdrop-filter: blur(12px);
+    transform: translateX(60px);
+    opacity: 0;
+    animation: slideIn 0.7s cubic-bezier(.22,1,.36,1) forwards;
+  }
+
+  .stat-card:nth-child(1) { animation-delay: 0.5s; }
+  .stat-card:nth-child(2) { animation-delay: 0.65s; }
+  .stat-card:nth-child(3) { animation-delay: 0.8s; }
+
+  .stat-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(82,193,222,0.1);
+    border: 1px solid rgba(82,193,222,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .stat-icon svg { width: 16px; height: 16px; color: var(--cyan); }
+
+  .stat-text { flex: 1; }
+  .stat-label { font-size: 0.7rem; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 0.15rem; }
+  .stat-value { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; color: #fff; }
+
+  /* Corner decoration */
+  .corner-mark {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #1f2937;
+    writing-mode: vertical-rl;
+  }
+
+  .grid-lines {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(40px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes float {
+    0%,100% { transform: translateY(0px); }
+    50%      { transform: translateY(-8px); }
+  }
+
+  .logo-main { animation: float 4s ease-in-out infinite; }
+
+  /* Pulse ring behind logo */
+  .pulse-ring {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 1px solid rgba(82,193,222,0.15);
+    animation: pulseRing 3s ease-out infinite;
+  }
+  .pulse-ring:nth-child(2) { animation-delay: 1s; width: 280px; height: 280px; }
+  .pulse-ring:nth-child(3) { animation-delay: 2s; width: 360px; height: 360px; }
+
+  @keyframes pulseRing {
+    0%   { opacity: 0.5; transform: scale(0.9); }
+    100% { opacity: 0; transform: scale(1.1); }
+  }
+
+  .pulse-rings {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .page { grid-template-columns: 1fr; }
+    .right { display: none; }
+    .left { padding: 3rem 2rem; overflow-y: auto; }
+    html, body { overflow: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ── LEFT: FORM ── -->
+  <section class="left">
+    <div class="logo-small">
+      <svg viewBox="0 0 624 565" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M514 261L623.5 261L471.5 0L150 1L0 262.5L102.5 262L223.5 89L424.5 89L514 261Z" fill="#52C1DE"/>
+        <path d="M612.5 305L611 308L471.5 564.5L156 564.5L2.5 308L94 308L223.5 483L420 482L518 305L612.5 305Z" fill="#371450"/>
+        <path d="M215.51 298L320.12 315.5L206 398L417 297.5L311.2 280.6L416.4 194L215.51 298Z" fill="#52C1DE"/>
+        <path d="M285.83 398L338.83 398L338 166L285 166.2L285.83 398Z" fill="#52C1DE"/>
+      </svg>
+      <span>AlexIS</span>
+    </div>
+
+    <p class="form-eyebrow">Account Recovery</p>
+    <h1 class="form-title">Reset your<br/><span>password</span></h1>
+    <p class="form-subtitle">Enter your email address and we'll send you a secure recovery link to get back in.</p>
+
+    <form onsubmit="return false;">
+      <div class="field">
+        <label for="email">Email address</label>
+        <input type="email" id="email" placeholder="name@example.com" autocomplete="email"/>
+      </div>
+
+      <button class="btn-submit" type="submit">Send reset link →</button>
+    </form>
+
+    <div class="divider"><span>or</span></div>
+
+    <a href="#" class="back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+      Back to login
+    </a>
+
+    <p class="bottom-tag">We build the future</p>
+  </section>
+
+  <!-- ── RIGHT: VISUAL ── -->
+  <section class="right">
+    <div class="grid-lines"></div>
+
+    <!-- Rays canvas rendered via JS below -->
+    <canvas id="rays-canvas"></canvas>
+
+    <div class="pulse-rings">
+      <div class="pulse-ring"></div>
+      <div class="pulse-ring"></div>
+      <div class="pulse-ring"></div>
+    </div>
+
+    <div class="right-content">
+
+      <!-- Animated Logo SVG -->
+      <svg class="logo-main" viewBox="0 0 624 565" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="8" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <path d="M514 261L623.5 261L471.5 0L150 1L0 262.5L102.5 262L223.5 89L424.5 89L514 261Z" fill="#52C1DE">
+          <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0;0.14;0.9;0.95;1" dur="5s" repeatCount="indefinite"/>
+          <animateTransform attributeName="transform" type="translate" values="0,-30;0,-30;0,0;0,0;0,-30;0,-30" keyTimes="0;0;0.14;0.9;0.95;1" dur="5s" repeatCount="indefinite" calcMode="spline" keySplines="0 0 0 0;0.22 1 0.36 1;0 0 0 0;0.5 0 0.5 1;0 0 0 0"/>
+        </path>
+        <path d="M612.5 305L611 308L471.5 564.5L156 564.5L2.5 308L94 308L99.5 308L223.5 483L420 482L518 305L612.5 305Z" fill="#371450">
+          <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.03;0.17;0.9;0.95;1" dur="5s" repeatCount="indefinite"/>
+          <animateTransform attributeName="transform" type="translate" values="0,30;0,30;0,0;0,0;0,30;0,30" keyTimes="0;0.03;0.17;0.9;0.95;1" dur="5s" repeatCount="indefinite" calcMode="spline" keySplines="0 0 0 0;0.22 1 0.36 1;0 0 0 0;0.5 0 0.5 1;0 0 0 0"/>
+        </path>
+        <path d="M285.83 398.211L338.83 398.021L338 166L285 166.19L285.83 398.211Z" fill="#52C1DE" filter="url(#glow)">
+          <animate attributeName="opacity" values="0;0;0;0.5;0.15;0.5;0.15;0.5;0;0" keyTimes="0;0.13;0.28;0.35;0.45;0.55;0.65;0.75;0.9;1" dur="5s" repeatCount="indefinite"/>
+        </path>
+        <path d="M285.83 398.211L338.83 398.021L338 166L285 166.19L285.83 398.211Z" fill="#52C1DE">
+          <animate attributeName="opacity" values="0;0;0;1;1;0;0" keyTimes="0;0;0.13;0.16;0.9;0.95;1" dur="5s" repeatCount="indefinite"/>
+        </path>
+        <path d="M215.51 298.034L320.118 315.47L206 398L417 297.453L311.203 280.598L416.406 194L413.434 195.743L215.51 298.034Z" fill="#371450">
+          <animate attributeName="opacity" values="0;0;0;1;1;0;0" keyTimes="0;0;0.16;0.2;0.9;0.95;1" dur="5s" repeatCount="indefinite"/>
+        </path>
+        <!-- Sparks -->
+        <line stroke="#52C1DE" stroke-width="2.5" stroke-linecap="round">
+          <animate attributeName="x1" values="270;270;270;270" keyTimes="0;0.21;0.21;1" dur="5s" repeatCount="indefinite"/>
+          <animate attributeName="y1" values="210;210;210;210" keyTimes="0;0.21;0.21;1" dur="5s" repeatCount="indefinite"/>
+          <animate attributeName="x2" values="270;270;235;235" keyTimes="0;0.21;0.31;1" dur="5s" repeatCount="indefinite"/>
+          <animate attributeName="y2" values="210;210;172;172" keyTimes="0;0.21;0.31;1" dur="5s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.21;0.23;0.32;1" dur="5s" repeatCount="indefinite"/>
+        </line>
+        <line stroke="#52C1DE" stroke-width="2.5" stroke-linecap="round">
+          <animate attributeName="x1" values="355;355;355;355" keyTimes="0;0.22;0.22;1" dur="5s" repeatCount="indefinite"/>
+          <animate attributeName="y1" values="210;210;210;210" keyTimes="0;0.22;0.22;1" dur="5s" repeatCount="indefinite"/>
+          <animate attributeName="x2" values="355;355;393;393" keyTimes="0;0.22;0.32;1" dur="5s" repeatCount="indefinite"/>
+          <animate attributeName="y2" values="210;210;172;172" keyTimes="0;0.22;0.32;1" dur="5s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.22;0.24;0.33;1" dur="5s" repeatCount="indefinite"/>
+        </line>
+        <ellipse cx="312" cy="282" fill="white">
+          <animate attributeName="rx" values="0;0;5;85" keyTimes="0;0.2;0.2;0.3" dur="5s" repeatCount="indefinite"/>
+          <animate attributeName="ry" values="0;0;5;85" keyTimes="0;0.2;0.2;0.3" dur="5s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;0;0.4;0" keyTimes="0;0.2;0.22;0.3" dur="5s" repeatCount="indefinite"/>
+        </ellipse>
+      </svg>
+
+      <div class="brand-name">AlexIS</div>
+      <div class="brand-tagline">We Build · We Scale · We Automate</div>
+
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="13 2 13 9 20 9"/><polygon points="20 21 2 21 2 3 13 3 20 9 20 21"/>
+            </svg>
+          </div>
+          <div class="stat-text">
+            <div class="stat-label">Automations running</div>
+            <div class="stat-value">2,840+</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="stat-text">
+            <div class="stat-label">Hours saved this month</div>
+            <div class="stat-value">14,200 hrs</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <div class="stat-text">
+            <div class="stat-label">Teams onboarded</div>
+            <div class="stat-value">380 teams</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <span class="corner-mark">AlexIS · v2.0</span>
+  </section>
+
+</div>
+
+<script>
+  // Minimal light rays via Canvas 2D (no external deps)
+  const canvas = document.getElementById('rays-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, t = 0;
+
+  function resize() {
+    const parent = canvas.parentElement;
+    W = canvas.width = parent.clientWidth;
+    H = canvas.height = parent.clientHeight;
+  }
+
+  function drawRays() {
+    ctx.clearRect(0, 0, W, H);
+    const cx = W * 0.5, cy = -H * 0.1;
+    const numRays = 18;
+
+    for (let i = 0; i < numRays; i++) {
+      const baseAngle = (i / numRays) * Math.PI + Math.PI * 0.15;
+      const angle = baseAngle + Math.sin(t * 0.4 + i * 0.7) * 0.04;
+      const length = H * 1.6 + Math.sin(t * 0.6 + i) * H * 0.1;
+      const width = (12 + Math.sin(t * 0.3 + i * 1.3) * 6) * (1 - i / numRays * 0.5);
+      const alpha = (0.025 + Math.sin(t * 0.5 + i * 0.9) * 0.01);
+
+      const ex = cx + Math.cos(angle) * length;
+      const ey = cy + Math.sin(angle) * length;
+
+      const grad = ctx.createLinearGradient(cx, cy, ex, ey);
+      grad.addColorStop(0, `rgba(82,193,222,${alpha * 3})`);
+      grad.addColorStop(0.4, `rgba(82,193,222,${alpha})`);
+      grad.addColorStop(1, `rgba(55,20,80,0)`);
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+
+      const perp = angle + Math.PI / 2;
+      ctx.lineTo(ex + Math.cos(perp) * width, ey + Math.sin(perp) * width);
+      ctx.lineTo(ex - Math.cos(perp) * width, ey - Math.sin(perp) * width);
+      ctx.closePath();
+
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Center glow
+    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, H * 0.4);
+    glow.addColorStop(0, 'rgba(82,193,222,0.08)');
+    glow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, H);
+
+    t += 0.016;
+    requestAnimationFrame(drawRays);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  drawRays();
+</script>
+
+</body>
+</html>
