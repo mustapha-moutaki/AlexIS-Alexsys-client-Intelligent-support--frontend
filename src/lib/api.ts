@@ -1,3 +1,4 @@
+import { getToken, saveToken, removeToken } from "./auth";
 import axios from "axios";
 
 const api = axios.create({
@@ -10,7 +11,7 @@ const api = axios.create({
 // request interceptor (future JWT)
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem("token");
+        const token = getToken();
 
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
@@ -44,7 +45,7 @@ api.interceptors.response.use(
 
                 const newToken = res.data.accessToken;// get new token
 
-                localStorage.setItem("token", newToken);
+                saveToken(newToken);
 
                 // update the token in the default headers and the original request headers
                 api.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
@@ -56,7 +57,7 @@ api.interceptors.response.use(
 
                 return api(originalRequest);
             } catch (err) {
-                localStorage.removeItem("token");
+                removeToken();
                 window.location.href = "/login";
                 return Promise.reject(err);
             } finally {
