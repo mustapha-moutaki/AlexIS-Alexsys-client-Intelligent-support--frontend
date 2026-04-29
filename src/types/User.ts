@@ -1,6 +1,9 @@
 export interface User {
     id: string | number;
+    username?: string;
     email: string;
-    name?: string;
-    role?: string;
+    firstName?: string;
+    lastName?: string;
+    roles?: string[];
+    profilePicture?: string;
 }
