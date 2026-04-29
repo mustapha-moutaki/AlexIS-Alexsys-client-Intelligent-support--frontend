@@ -8,7 +8,6 @@ export default function Dashboard() {
 
     <div className="flex justify-center items-center gap-6 mt-6 mb-6">
       <Spinner />
-     
     </div>
   </div>
 }
