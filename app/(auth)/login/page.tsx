@@ -4,7 +4,8 @@ import { useState } from "react"
 import LoginForm from "@/src/features/auth/components/LoginForm"
 import { login } from "@/src/features/auth/services/auth.service"
 import { saveToken, saveUser } from "@/src/lib/auth";
-import useAuthStore from "@/src/store/uthStore";
+import useAuthStore from "@/src/store/authStore";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -12,6 +13,8 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const setAuth = useAuthStore((state:any)=> state.setAuth)
+  const router = useRouter();
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError("")
@@ -24,7 +27,7 @@ export default function LoginPage() {
       saveUser(response.data.user)
      
       setAuth(response.data.user, response.data.accessToken);
-
+      router.push("/dashboard");
     } catch (err) {
       setError("Invalid email or password");
 
