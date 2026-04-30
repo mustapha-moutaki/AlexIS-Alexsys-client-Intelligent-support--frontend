@@ -23,8 +23,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div 
         className="relative z-10 flex flex-col flex-1 transition-all duration-500 ease-in-out"
         style={{ 
-          // This creates the "hole" for the sidebar to sit in
-          paddingLeft: isSidebarExpanded ? "240px" : "100px",
+          paddingLeft: "100px",
           paddingRight: "24px" 
         }}
       >
