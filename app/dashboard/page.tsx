@@ -2,12 +2,19 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { Search } from "lucide-react";
+import useAuthStore from "@/src/store/authStore";
+import FieldSkeleton from "@/components/ui/FieldSkeleton";
+
+// ─── Stats IMPORT ────────────────────────────────────────────────────────────
+import { useAdminDashboardOverview } from "@/src/hooks/useAdminDashboardOverview";
+
 
 // ─── PAGE IMPORTS ────────────────────────────────────────────────────────────
 import Overview from "./Overview";
 import Graphs from "./Graphs";
 import Details from "./Details";
 import Reports from "./Reports";
+// import DashboardSkeleton from "@/src/shared/components/ui/DashboardSkeleton";
 
 // ─── LIQUID NAVBAR COMPONENT ──────────────────────────────────────────────────
 const navItems = ["Overview", "Graphs", "Details", "Reports"];
@@ -149,6 +156,18 @@ export default function Dashboard() {
   const [activeIndex, setActiveIndex] = useState(0);
   const activeTab = navItems[activeIndex];
 
+  // fetch user data from zustand store
+  const [isExistUser, setIsExistUser] = useState(false);
+
+  const user = useAuthStore((state)=> state.user);
+
+  useEffect(() => {
+  setIsExistUser(!!user);
+}, [user]);
+
+
+
+
   // Logic to determine which page component to display
   const renderPage = () => {
     switch (activeTab) {
@@ -226,19 +245,46 @@ export default function Dashboard() {
         {/* User Profile */}
         <div style={{ display: "flex", gap: 15, alignItems: "center" }}>
           <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 11, fontWeight: 700 }}>Admin User</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#fff" }}>
+
+              {isExistUser ? user?.firstName+" "+user?.lastName : <FieldSkeleton/>}
+              
+              </div>
+            
+
             <div style={{ fontSize: 9, color: "#34d9a5" }}>● Online</div>
           </div>
-          <div style={{ 
-            width: 32, height: 32, borderRadius: "50%", 
-            background: "linear-gradient(135deg,#371450,#51c2de)", 
-            display: "flex", alignItems: "center", justifyContent: "center", 
-            fontSize: 11, fontWeight: 900, border: "2px solid rgba(255,255,255,0.1)" 
-          }}>
-            AU
-          </div>
+          {user?.profilePicture ? (
+  <img
+    src={user.profilePicture}
+    alt="profile"
+    style={{
+      width: 30,
+      height: 30,
+      borderRadius: "50%",
+      objectFit: "cover",
+    }}
+  />
+) : (
+  <div
+    style={{
+      width: 30,
+      height: 30,
+      borderRadius: "50%",
+      background: "linear-gradient(135deg, #000000, #371450)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: 12,
+      fontWeight: 700,
+      color: "white",
+    }}
+  >
+    {user?.firstName?.charAt(0)?.toUpperCase() || "U"}
+  </div>
+)}
         </div>
-      </header>
+        </header>
 
       {/* Main Content Area (Scrollable but no visible scrollbar) */}
       <main className="hide-scrollbar" style={{ 
