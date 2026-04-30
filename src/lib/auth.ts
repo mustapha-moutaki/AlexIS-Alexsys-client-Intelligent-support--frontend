@@ -1,29 +1,24 @@
-import {User} from "@/src/types/User";
+import { User } from "@/src/types/User";
 
-export const saveToken =  (token: string)=>{
-    localStorage.setItem(
-        process.env.NEXT_PUBLIC_TOKEN_KEY || "token",
-        token
-    );
+const TOKEN_KEY = process.env.NEXT_PUBLIC_TOKEN_KEY || "token";
+
+export const saveToken = (token: string) => {
+  localStorage.setItem(TOKEN_KEY, token);
 };
 
-export const saveUser = (user: User)=>{
-    localStorage.setItem("user", JSON.stringify(user));
+export const getToken = (): string | null => {
+  return localStorage.getItem(TOKEN_KEY);
 };
 
-export const getUser = (): User | null =>{
-    const user = localStorage.getItem("user");
-    return user ? JSON.parse(user) : null;
+export const removeToken = () => {
+  localStorage.removeItem(TOKEN_KEY);
 };
 
-export const getToken = ()=>{
-    return localStorage.getItem(
-        process.env.NEXT_PUBLIC_TOKEN_KEY || "token"
-    );
-}
+export const saveUser = (user: User) => {
+  localStorage.setItem("user", JSON.stringify(user));
+};
 
-export const removeToken = ()=>{
-    localStorage.removeItem(
-        process.env.NEXT_PUBLIC_TOKEN_KEY || "token"
-    );
+export const getUser = (): User | null => {
+  const user = localStorage.getItem("user");
+  return user ? JSON.parse(user) : null;
 };
