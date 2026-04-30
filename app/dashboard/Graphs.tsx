@@ -1,6 +1,10 @@
 "use client";
 import React from "react";
 
+
+
+
+
 const weeklyTickets = [
   { day: "Mon", created: 142, resolved: 118 },
   { day: "Tue", created: 198, resolved: 175 },
