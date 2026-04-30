@@ -3,7 +3,7 @@ export interface AdminDashboardOverview {
   totalClientsToDay: number;
   activeClients: number;
 
-  avgSatisfactionScore: number | null;
+  avgSatisfactionScore: number;
   lowSatisfactionClient: number;
 
   totalAgents: number;
@@ -20,7 +20,6 @@ export interface AdminDashboardOverview {
   totalResolvedTickets: number;
   totalClosedTickets: number;
 
-  avgResolutionTime: number | null;
   highPriorityTickets: number;
   totalTicketsToday: number;
 
@@ -38,6 +37,6 @@ export interface AdminDashboardOverview {
   myLowPriorityTickets: number;
 
   ticketsNeedingAttention: number;
-  riskDetectedAgent: string | null;
+  riskDetectedAgent: string | null;//
   avgLoadPerAgent: number;
 };
