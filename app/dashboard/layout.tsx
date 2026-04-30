@@ -9,7 +9,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="relative flex h-screen w-full bg-[#0a0a0b] text-white overflow-x-hidden">
-      
       {/* 1. Atmospheric Background (Glows) */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute top-[10%] -left-[5%] w-[40%] h-[50%] bg-[#371450]/20 blur-[120px] rounded-full" />
@@ -31,7 +30,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       >
         <Navbar />
         
-        <main className="mt-4 flex-1 mb-6 rounded-[32px] bg-white/[0.02] backdrop-blur-md border border-white/10 p-8 shadow-2xl min-h-[calc(100vh-100px)]">
+        <main className="mt-4 flex-1 mb-6 rounded-[32px] bg-white/[0.02] backdrop-blur-md border border-white/10 p-1 shadow-2xl min-h-[calc(100vh-100px)]">
           {children}
         </main>
       </div>
