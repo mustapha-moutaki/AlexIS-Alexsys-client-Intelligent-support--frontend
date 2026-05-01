@@ -2,7 +2,7 @@
 import React from "react";
 import FloatingLines from "@/components/BackgroundAnimatedHome";
 import MagicBento from '@/components/MagicBento'
-
+import SupportAvatar from "@/components/SupportAvatar";
 // ---------------------------
 import LogoLoop from '@/components/LogoLoop';
 import { SiReact, SiNextdotjs, SiTypescript, SiTailwindcss } from 'react-icons/si';
@@ -310,6 +310,9 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+<SupportAvatar />
+
 
       {/* ─── CTA BANNER ─── */}
       <section className="px-6 pb-24">
