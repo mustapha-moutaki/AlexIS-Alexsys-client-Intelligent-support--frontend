@@ -17,14 +17,14 @@ const Shimmer = ({ className, style }) => (
 // 2. The Main Skeleton Component
 export default function DashboardSkeleton() {
   const cardStyle = {
-    background: "#131316",
+    background: "transparent",
     border: "1px solid rgba(255,255,255,0.05)",
     borderRadius: "1rem",
     padding: "1.5rem",
   };
 
   return (
-    <div style={{ width: "100%", height: "100%", background: "#0d0d10", color: "#fff", padding: "2rem", fontFamily: "sans-serif" }}>
+    <div style={{ width: "100%", height: "100%", background: "transparent", color: "#fff", padding: "2rem", fontFamily: "sans-serif" }}>
       {/* Keyframes for the animation */}
       <style>{`
         @keyframes shimmer {
