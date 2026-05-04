@@ -5,7 +5,8 @@ const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {
         "Content-Type": "application/json",
-    }
+    },
+    withCredentials: true,// this is important for the refresh token to be sent automatically
 });
 
 // request interceptor (future JWT)
@@ -27,8 +28,15 @@ api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
+
+        const isRefreshRequest = originalRequest?.url?.includes("/auth/refresh");// to avaoind sending multiple refresh requests
+
         // check if the request is 401 and it is not a retry request means access token is expired
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        if (
+            (error.response?.status === 401 || error.response?.status === 403) &&
+            !originalRequest._retry &&
+            !isRefreshRequest
+        ) {
             if (isRefreshing) {
                 return new Promise((resolve) => {
                     failedQueue.push(() => resolve(api(originalRequest)));
