@@ -1,33 +1,34 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutGrid, Wallet, BarChart3, ArrowLeftRight, Users, Settings, 
   LogOut, Zap, Sun, Moon
 } from "lucide-react";
 
+// Updated navItems with path field
 const navItems = [
-  { id: "dash",      label: "Dashboard", icon: LayoutGrid },
-  { id: "wallet",    label: "My Balance", icon: Wallet },
-  { id: "stats",     label: "Statistics", icon: BarChart3 },
-  { id: "trade",     label: "Exchange",   icon: ArrowLeftRight },
-  { id: "community", label: "Community",  icon: Users },
-  { id: "settings",  label: "Settings",   icon: Settings },
+  { id: "dash",      label: "Dashboard",  icon: LayoutGrid,     path: "/dashboard" },
+  { id: "wallet",    label: "My Balance", icon: Wallet,         path: "/balance"   },
+  { id: "stats",     label: "Statistics", icon: BarChart3,      path: "/stats"     },
+  { id: "trade",     label: "Exchange",   icon: ArrowLeftRight, path: "/exchange"  },
+  { id: "Manage Users", label: "Users",  icon: Users,          path: "/dashboard/users"},
+  { id: "settings",  label: "Settings",   icon: Settings,       path: "/settings"  },
 ];
 
-export default function FloatingSidebar({ isExpanded, setIsExpanded }) {
-  const [active, setActive] = useState("dash");
+export default function FloatingSidebar({ isExpanded, setIsExpanded }:any) {
+  const router = useRouter();
+  const pathname = usePathname(); // 2. Hook to get current URL
   const [isDarkMode, setIsDarkMode] = useState(true);
 
-  // Common animation variants for the sidebar containers
   const sidebarVariants = {
     expanded: { width: 160 },
     collapsed: { width: 40 }
-
   };
 
   return (
-    <div className="fixed left-4 md:left-6 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-6">
+    <div className="fixed left-4 md:left-6 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-6 cursor-pointer">
       
       {/* Top Section: Theme Toggle */}
       <motion.aside
@@ -42,6 +43,7 @@ export default function FloatingSidebar({ isExpanded, setIsExpanded }) {
           WebkitBackdropFilter: "blur(20px)",
           border: "1px solid rgba(81,194,222,0.18)",
           boxShadow: "0 8px 40px rgba(55,20,80,0.5), inset 0 1px 0 rgba(255,255,255,0.08)",
+
         }}
       >
         <div className="absolute inset-0 rounded-[20px] pointer-events-none"
@@ -50,7 +52,7 @@ export default function FloatingSidebar({ isExpanded, setIsExpanded }) {
         
         <button
           onClick={() => setIsDarkMode(!isDarkMode)}
-          className="relative z-10 flex items-center w-full h-8 rounded-lg transition-all hover:scale-[1.02] active:scale-95 group"
+          className="relative z-10 flex items-center w-full h-8 rounded-lg transition-all hover:scale-[1.02] active:scale-95 group cursor-pointer"
         >
           <div 
             className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg transition-transform"
@@ -114,13 +116,15 @@ export default function FloatingSidebar({ isExpanded, setIsExpanded }) {
 
         {/* Nav Items */}
         <div className="relative z-10 flex-1 w-full space-y-1">
-          {navItems.map(({ id, label, icon: Icon }) => {
-            const isActive = active === id;
+          {navItems.map(({ id, label, icon: Icon, path }) => {
+            // 3. isActive is true if the current URL matches the item's path
+            const isActive = pathname === path;
+
             return (
               <button
                 key={id}
-                onClick={() => setActive(id)}
-                className="relative w-full h-8 flex items-center rounded-lg transition-colors group"
+                onClick={() => router.push(path)} 
+                className="relative w-full h-8 flex items-center rounded-lg transition-colors group cursor-pointer"
                 style={{ color: isActive ? "#fff" : "rgba(255,255,255,0.35)" }}
               >
                 {isActive && (
