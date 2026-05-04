@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 
+
 export default function AnimatedBackground() {
   return (
     <>
@@ -87,6 +88,7 @@ export default function AnimatedBackground() {
       <div className="bg-orb bg-orb-2" />
       <div className="bg-orb bg-orb-3" />
       <div className="bg-orb bg-orb-4" />
+
 
       {/* Subtle grid overlay */}
       <div className="bg-grid-lines" />
