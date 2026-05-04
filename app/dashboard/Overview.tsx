@@ -7,8 +7,8 @@ import DashboardSkeleton from "@/src/shared/components/ui/DashboardSkeleton";
 
 // ─── Style Tokens ─────────────────────────────────────────────────────────────
 const cardStyle: React.CSSProperties = {
-  background: "#131316",
-  border: "1.5px solid rgba(255,255,255,0.05)",
+  background:"Transparent",
+  border: "1px solid #ffffff47",
   borderRadius: "1rem",
   padding: "1rem",
   display: "flex",
@@ -21,7 +21,7 @@ const sectionTitleStyle: React.CSSProperties = {
   fontWeight: 700,
   letterSpacing: "0.1em",
   textTransform: "uppercase",
-  color: "rgba(255,255,255,0.3)",
+  color: "#ffffff82",
   marginBottom: "0.5rem",
 };
 
@@ -88,11 +88,11 @@ export default function Overview() {
 
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "1rem"}}>
       {/* Title */}
       <div>
-        <h1 style={{ fontSize: "1.4rem", fontWeight: 700, margin: 0 }}>Dashboard Overview</h1>
-        <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)", margin: "4px 0 0" }}>
+        <h1 style={{ fontSize: "1.2rem", fontWeight: 700, margin: 0 }}>Dashboard Overview</h1>
+        <p style={{ fontSize: "11px", color: "#ffffff4d", margin: "4px 0 0" }}>
           Real-time metrics for April 30, 2026
         </p>
       </div>
