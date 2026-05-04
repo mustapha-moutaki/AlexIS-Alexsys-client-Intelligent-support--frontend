@@ -7,6 +7,7 @@ import RotatingText from '@/src/shared/components/ui/RotatingText';
 // ---------------------------
 import LogoLoop from '@/components/LogoLoop';
 import { SiReact, SiNextdotjs, SiTypescript, SiTailwindcss } from 'react-icons/si';
+import "./globals.css"; 
 
 const techLogos = [
   { node: <SiReact />, title: "React", href: "https://react.dev" },
@@ -14,6 +15,7 @@ const techLogos = [
   { node: <SiTypescript />, title: "TypeScript", href: "https://www.typescriptlang.org" },
   { node: <SiTailwindcss />, title: "Tailwind CSS", href: "https://tailwindcss.com" },
 ];
+
 
 // Alternative with image sources
 const imageLogos = [
@@ -157,7 +159,7 @@ export default function Home() {
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
         
-        .font-display { font-family: 'Syne', sans-serif; }
+        .font-display { font-family: 'Poppins', sans-serif; }
         .font-body { font-family: 'DM Sans', sans-serif; }
 
         .glass {
@@ -294,6 +296,11 @@ texts={["Smarter", "Faster", "Instantly", "With AI"]}
   />
 </div>
 
+
+{/* new test div */}
+
+
+
           <p className="text-white/55 text-[16px] md:text-[19px] max-w-xl leading-relaxed mb-10 font-body font-light animate-in slide-in-from-bottom-8 duration-700 delay-200">
             Empowering support teams with intelligent tools to deliver exceptional client experiences — every ticket, every time.
           </p>
@@ -344,6 +351,7 @@ texts={["Smarter", "Faster", "Instantly", "With AI"]}
             { title: "Compliance", desc: "Enterprise-grade encryption, GDPR-ready, and role-based access control.", icon: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" },
           ].map((feat, i) => (
             <div key={i} className="card-hover glass rounded-2xl p-8 relative overflow-hidden noise group">
+             {/* <div key={i} className="glass-ai card-hover rounded-2xl p-8 relative overflow-hidden noise group"> */}
               <div className="w-12 h-12 rounded-xl bg-[#52C1DE]/10 flex items-center justify-center mb-6 group-hover:bg-[#52C1DE]/20 transition-colors">
                 <svg className="text-[#52C1DE]" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
                    <path strokeLinecap="round" strokeLinejoin="round" d={feat.icon} />
@@ -356,7 +364,7 @@ texts={["Smarter", "Faster", "Instantly", "With AI"]}
         </div>
       </section>
 
-<SupportAvatar />
+      <SupportAvatar />
 
 
       {/* ─── CTA BANNER ─── */}
@@ -440,6 +448,7 @@ texts={["Smarter", "Faster", "Instantly", "With AI"]}
         logos={techLogos}
     useCustomRender={false}
   />
+
     </div>
 
         <div className="max-w-6xl mx-auto mt-16 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-[12px] text-white/20 font-body">
