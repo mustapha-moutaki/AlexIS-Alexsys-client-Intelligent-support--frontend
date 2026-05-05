@@ -25,7 +25,7 @@ export default function ManageUsersPage() {
   if (isLoading) {
     return(
         <SimpleSpinner />
-       
+
     )
   }
 
