@@ -4,10 +4,10 @@ import { CreateAdminRequest } from "@/src/types/CreateAdminRequest";
 import { User } from "@/src/types/User";
 
 
-const ADMIN_ENDPOINT = "/admin";
+
 
 
 export const createAdminUser = async(user:CreateAdminRequest)=>{
-    const res = await api.post<ApiResponse<User>>(ADMIN_ENDPOINT,user);
+    const res = await api.post<ApiResponse<User>>("/users",user);
     return res.data;
 }
