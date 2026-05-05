@@ -72,10 +72,10 @@ export default function Loading() {
   );
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-[#1e0a2e]">
-      <div className="w-[68px] md:w-[84px] aspect-[624/565]">
+    <div className="fixed inset-0 flex items-center justify-center bg-transparent">
+      <div className="w-[68px] md:w-[84px] aspect-[624/565] justify-center items-center">
         <AlexISLogo />
-        Loagin ...
+        Loading page ...
       </div>
     </div>
   );
