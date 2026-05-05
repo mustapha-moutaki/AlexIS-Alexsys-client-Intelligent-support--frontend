@@ -49,10 +49,6 @@ export default function SelectRoleModal({
 
 
 
-  const all_Roles = 0;
-
-  
-
   const handleConfirm = (roleId: number) => {
   router.push(`/dashboard/users/create?roleId=${roleId}`);
   onClose();
