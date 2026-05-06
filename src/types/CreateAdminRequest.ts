@@ -5,6 +5,6 @@ export interface CreateAdminRequest{
     email: string,
     password: string,
     phoneNumber:string,
-    profilePicture:string | null,
+    profilePicture?:File,
     role: string
 }
