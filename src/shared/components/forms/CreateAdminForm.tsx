@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -13,7 +13,7 @@ const createUserSchema = z.object({
   email: z.string().email("Invalid"),
   password: z.string().min(8, "Min 8 chars"),
   phoneNumber: z.string().min(10, "Invalid"),
-  profilePicture: z.any().optional(),
+  profilePicture: z.instanceof(File).optional(),
 });
 
 type CreateUserInputs = z.infer<typeof createUserSchema>;
@@ -27,20 +27,27 @@ export default function CreateAdminForm({ onSubmit, isLoading }: Props) {
   const [preview, setPreview] = useState<string | null>(null);
 
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<CreateUserInputs>({
-    resolver: zodResolver(createUserSchema),
+    resolver: zodResolver(createUserSchema),defaultValues:{profilePicture: undefined},
   });
+  
+const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Sync with react-hook-form
-      setValue("profilePicture", file);
-      // Handle local preview
-      const reader = new FileReader();
-      reader.onloadend = () => setPreview(reader.result as string);
-      reader.readAsDataURL(file);
+  if (file) {
+    setPreview(URL.createObjectURL(file)); // UI only
+    setValue("profilePicture", file, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  }
+};
+useEffect(() => {
+  return () => {
+    if (preview) {
+      URL.revokeObjectURL(preview);
     }
   };
+}, [preview]);
 
   return (
     <div className="w-full h-full rounded-[1rem] p-[1.5rem] text-white flex flex-col overflow-hidden">
@@ -76,6 +83,11 @@ export default function CreateAdminForm({ onSubmit, isLoading }: Props) {
             <div className="flex flex-col gap-[0.2rem]">
               <label className="text-[0.6rem] text-white/70 uppercase">Last Name</label>
               <input {...register("lastName")} className="w-full text-[0.75rem] rounded-[0.4rem] border border-[#51c2de]/30 bg-transparent px-[0.6rem] py-[0.4rem] outline-none focus:border-[#51c2de]" />
+               {errors.lastName && (
+    <span className="text-[0.5rem] text-red-400">
+      {errors.lastName.message}
+    </span>
+  )}
             </div>
           </div>
 
