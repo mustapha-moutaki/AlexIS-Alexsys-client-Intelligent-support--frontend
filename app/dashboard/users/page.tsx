@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useUsers } from "@/src/hooks/useUsers";
 import UserList from "@/src/shared/components/forms/UserList";
 import SimpleSpinner from "@/components/ui/SimpleSpinner";
 import SelectRoleModal from "@/src/shared/components/modals/SelectRoleModal";
+import Breadcrumbs from "@/src/shared/components/ui/Breadcrumbs";
+import ButtonGoBack from "@/src/shared/components/ui/ButtonGoBack";
 
 export default function ManageUsersPage() {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState("id");
   const [direction, setDirection] = useState<"asc" | "desc">("asc");
@@ -41,20 +45,41 @@ export default function ManageUsersPage() {
   
   const A = "#51c2de", DIM = "#ffffff61";
 
+  const handleViewUser = (userId: number) => {
+    router.push(`/dashboard/users/${userId}`);
+  };
+
   return (
+   
     <div className="flex flex-col h-full w-full px-6 py-4 gap-4 overflow-hidden">
       {/* 1. BREADCRUMBS (Now in Page) */}
       <div className="flex items-center gap-1.5 flex-shrink-0" style={{ color: DIM, fontSize: 10 }}>
-        <span>Dashboard</span>
-        <span style={{ color: "rgba(255,255,255,0.2)" }}>›</span>
-        <span style={{ color: "rgba(255,255,255,0.65)" }}>Manage users</span>
+        <span style={{ color: "rgba(255,255,255,0.65)" }}>
+          <Breadcrumbs
+          items={[
+            { name: "Dashboard", route: "/dashboard" },
+            { name: "Manage users", route: "/dashboard/users" },
+          ]}
+        />
+          </span>
       </div>
 
       {/* 2. HEADER SECTION (Now in Page) */}
       <div className="flex items-center justify-between flex-shrink-0">
+        
+        <div className="flex gap-2 items-center">
+
+           <ButtonGoBack/> 
         <div>
-          <h1 className="font-bold tracking-tight text-white" style={{ fontSize: 18 }}>Manage users</h1>
+         
+          <h1 className="font-bold tracking-tight text-white" style={{ fontSize: 18 }}>
+            
+            Manage users</h1>
           <p style={{ color: DIM, fontSize: 11 }}>Found {data.totalElements} registered users</p>
+        </div>
+
+
+
         </div>
 
         <button className="flex items-center gap-1.5 rounded-lg font-semibold transition-all hover:brightness-110 active:scale-95" style={{ background: A, color: "#0d0014", fontSize: 11, padding: "8px 16px" }}
@@ -65,7 +90,6 @@ export default function ManageUsersPage() {
           </svg>
           Add user
         </button>
-        
       </div>
         
 
@@ -84,8 +108,8 @@ export default function ManageUsersPage() {
         setDirection={setDirection}
         includeDeleted={includeDeleted}
         setIncludeDeleted={setIncludeDeleted}
+        onViewUser={handleViewUser}
       />
-
 
       <SelectRoleModal
         isOpen={isRoleModalOpen} 
@@ -93,5 +117,6 @@ export default function ManageUsersPage() {
       />
 
     </div>
+  
   );
 }
