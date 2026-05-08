@@ -2,6 +2,7 @@
 
 import { useCreateAdmin } from "@/src/hooks/useAdmin";
 import { useCreateAgent } from "@/src/hooks/useAgent";
+import { useCreateClient } from "@/src/hooks/useClient";
 import CreateAdminForm from "@/src/shared/components/forms/CreateAdminForm";
 import CreateAgentForm from "@/src/shared/components/forms/CreateAgentForm";
 import CreateClient from "@/src/shared/components/forms/CreateClientForm";
@@ -21,7 +22,7 @@ export default function CreateAdminPage() {
      // Initialize all hooks at the top level
     const adminAction = useCreateAdmin();
     const agentAction = useCreateAgent();
-    // const clientAction = useCreateClient(); 
+    const clientAction = useCreateClient(); 
 
     //Logic to determine which mutation function to call
     const handleCreateUser = (formData: any) => {
@@ -30,8 +31,7 @@ export default function CreateAdminPage() {
         } else if (selectedRole === "AGENT") {
             agentAction.mutate(formData);
         } else if (selectedRole === "CLIENT") {
-            // clientAction.mutate(formData);
-            console.log("Client logic here");
+            clientAction.mutate(formData);
         }
     };
         const isPending = adminAction.isPending || agentAction.isPending;
