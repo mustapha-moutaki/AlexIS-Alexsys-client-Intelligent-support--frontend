@@ -8,7 +8,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
   return (
-    <div className="relative flex h-screen w-full bg-[#0a0a0b] text-white overflow-x-hidden">
+    <div className="relative flex min-h-screen w-full overflow-hidden bg-[#0a0a0b] text-white ">
       {/* 1. Atmospheric Background (Glows) */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         {/* base dark center */}
