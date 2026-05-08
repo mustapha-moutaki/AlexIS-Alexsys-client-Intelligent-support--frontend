@@ -42,12 +42,13 @@ interface UserListProps {
   setDirection: (val: "asc" | "desc") => void;
   includeDeleted: boolean;
   setIncludeDeleted: (val: boolean) => void;
+  onViewUser?: (userId: number) => void;
 }
 
 export default function UserList({ 
   users, totalElements, totalPages, currentPage, onPageChange, 
   currentRole, onRoleChange, sortBy, setSortBy, direction, 
-  setDirection, includeDeleted, setIncludeDeleted 
+  setDirection, includeDeleted, setIncludeDeleted, onViewUser 
 }: UserListProps) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<number[]>([]);
@@ -95,6 +96,9 @@ export default function UserList({
 
             {/* Bottom row: Sort, Direction, Inclusion */}
             <div className="flex items-center gap-4">
+              <div className="bg-red-400">advanced settings</div>
+
+              
                 <div className="flex items-center gap-2">
                     <span style={{ fontSize: 10, color: DIM, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Sort by</span>
                     <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} style={selectStyleBase}>
@@ -103,6 +107,8 @@ export default function UserList({
                         <option value="lastName" style={{ background: "#21212b", color: "white" }}>Last Name</option>
                         <option value="email" style={{ background: "#21212b", color: "white" }}>Email</option>
                     </select>
+
+                    
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -128,7 +134,13 @@ export default function UserList({
                     <div style={{ width: 6, height: 6, borderRadius: '50%', background: includeDeleted ? "#f87171" : "rgba(255,255,255,0.2)" }} />
                     Show Deleted
                 </button>
+                
+
+
+
             </div>
+
+            
           </div>
 
           {/* Table Content */}
@@ -162,7 +174,7 @@ export default function UserList({
                   <div style={{ color: DIM, fontSize: 11 }}>{user.phoneNumber}</div>
                   <div className="truncate" style={{ color: "rgba(81,194,222,0.58)", fontSize: 11 }}>{user.email}</div>
                   <div className="flex justify-end gap-1.5">
-                     <button title="View Details" className="flex items-center justify-center rounded-lg transition-all hover:scale-110" style={{ width: 26, height: 26, background: AB, color: A, border: "1px solid rgba(81,194,222,0.2)" }}>
+                     <button title="View Details" onClick={() => onViewUser?.(user.id)} className="flex items-center justify-center rounded-lg transition-all hover:scale-110" style={{ width: 26, height: 26, background: AB, color: A, border: "1px solid rgba(81,194,222,0.2)" }}>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                      </button>
                      <button title="Block User" className="flex items-center justify-center rounded-lg transition-all hover:scale-110" style={{ width: 26, height: 26, background: "rgba(255,255,255,0.03)", color: DIM, border: BDR }}>
