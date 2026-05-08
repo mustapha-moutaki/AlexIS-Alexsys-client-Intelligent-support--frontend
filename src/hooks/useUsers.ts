@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { getUsers } from "../features/auth/services/user.service"
+import { getUserById, getUsers } from "../features/auth/services/user.service"
 
 type Params={
   page?: number;
@@ -22,3 +22,12 @@ export const useUsers = (params:Params)=>{
         refetchOnReconnect: true // refetch when browser regains connection
     })
 }
+
+
+export const useUserById = (id: string) => {
+  return useQuery({
+    queryKey: ["user", id],
+    queryFn: () => getUserById(id),
+    enabled: !!id,
+  });
+};
