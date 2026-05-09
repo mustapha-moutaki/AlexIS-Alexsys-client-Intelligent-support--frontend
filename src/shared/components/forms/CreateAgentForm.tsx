@@ -4,8 +4,9 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Camera, ChevronDown } from "lucide-react"; 
+import { Camera } from "lucide-react";
 
+// ─── Logic Constants (Unchanged) ─────────────────────────────────────────────
 const SpecializationEnum = [
   "TECHNICAL_SUPPORT", "NETWORK", "SECURITY", "SOFTWARE", 
   "DATA", "AI", "AUTOMATION", "OTHER"
@@ -17,31 +18,19 @@ const AvailabilityEnum = [
 
 const AgentLevelEnum = ["JUNIOR", "MID", "SENIOR", "UNASSIGNED"] as const;
 
-// -------------------- FIX 1: ZOD SAFE ENUM VALIDATION --------------------
 const createAgentSchema = z.object({
-  firstName: z.string().min(2, "Short"),
-  lastName: z.string().min(2, "Short"),
-  username: z.string().min(3, "Min 3 chars"),
-  email: z.string().email("Invalid"),
-  password: z.string().min(5, "Min 5 chars"),
-  phoneNumber: z.string().min(10, "Invalid"),
+  firstName: z.string().min(2, "Too short"),
+  lastName: z.string().min(2, "Too short"),
+  username: z.string().min(3, "Min 3 characters"),
+  email: z.string().email("Invalid email"),
+  password: z.string().min(5, "Min 5 characters"),
+  phoneNumber: z.string().min(10, "Invalid number"),
   profilePicture: z.instanceof(File).optional(),
-
-  specialization: z.enum(SpecializationEnum, {
-    required_error: "Specialization is required",
-  }),
-
+  specialization: z.enum(SpecializationEnum, { required_error: "Required" }),
   averageResolutionTime: z.coerce.number().min(0),
   performanceRating: z.coerce.number().min(1).max(5),
-
-  // -------------------- FIX 2: WRONG FIELD NAME BUG --------------------
-  level: z.enum(AgentLevelEnum, {
-    required_error: "Level is required",
-  }),
-
-  availabilityStatus: z.enum(AvailabilityEnum, {
-    required_error: "Status is required",
-  }),
+  level: z.enum(AgentLevelEnum, { required_error: "Required" }),
+  availabilityStatus: z.enum(AvailabilityEnum, { required_error: "Required" }),
 });
 
 type CreateAgentInputs = z.infer<typeof createAgentSchema>;
@@ -51,196 +40,244 @@ interface Props {
   isLoading: boolean;
 }
 
+// ─── Style Tokens ─────────────────────────────────────────────────────────────
+const BRAND      = "#6366f1"; 
+const BRAND_T    = "rgba(99, 102, 241, 0.08)";
+const BORDER     = "#e2e8f0";
+const TEXT       = "#1e293b";
+const TEXT_SUB   = "#475569";
+const TEXT_MUTED = "#94a3b8";
+const WHITE      = "#ffffff";
+const DANGER     = "#ef4444";
+const DANGER_T   = "rgba(239, 68, 68, 0.08)";
+
+const labelStyle: React.CSSProperties = {
+  fontSize: "11px",
+  fontWeight: 600,
+  textTransform: "uppercase",
+  letterSpacing: "0.05em",
+  color: TEXT_MUTED,
+  marginBottom: "6px",
+  display: "block",
+};
+
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  fontSize: "13px",
+  color: TEXT,
+  background: WHITE,
+  border: `1px solid ${BORDER}`,
+  borderRadius: "6px",
+  padding: "8px 12px",
+  outline: "none",
+  boxSizing: "border-box",
+};
+
+const selectStyle: React.CSSProperties = {
+  ...inputStyle,
+  appearance: "none",
+  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
+  backgroundRepeat: "no-repeat",
+  backgroundPosition: "right 10px center",
+  backgroundSize: "14px",
+  cursor: "pointer",
+};
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 export default function CreateAgentForm({ onSubmit, isLoading }: Props) {
   const [preview, setPreview] = useState<string | null>(null);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
-  const { register, handleSubmit, setValue, formState: { errors } } =
-    useForm<CreateAgentInputs>({
-      resolver: zodResolver(createAgentSchema),
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<CreateAgentInputs>({
+    resolver: zodResolver(createAgentSchema),
+    defaultValues: {
+      specialization: undefined,
+      level: undefined,
+      availabilityStatus: undefined,
+    },
+  });
 
-      // -------------------- FIX 3: SAFE DEFAULT VALUES --------------------
-      defaultValues: {
-        specialization: undefined,
-        level: undefined,
-        availabilityStatus: undefined,
-      },
-    });
-
-  // -------------------- FIX 4: IMAGE HANDLING (SAFE + CLEAN) --------------------
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-
     if (file) {
       setPreview(URL.createObjectURL(file));
-
-      setValue("profilePicture", file, {
-        shouldValidate: true,
-        shouldDirty: true,
-        shouldTouch: true,
-      });
+      setValue("profilePicture", file, { shouldValidate: true, shouldDirty: true });
     }
   };
 
   useEffect(() => {
-    return () => {
-      if (preview) URL.revokeObjectURL(preview);
-    };
+    return () => { if (preview) URL.revokeObjectURL(preview); };
   }, [preview]);
 
-  const inputStyles =
-    "w-full text-[0.75rem] rounded-[0.4rem] border border-[#51c2de]/30 bg-transparent px-[0.6rem] py-[0.4rem] outline-none focus:border-[#51c2de] text-white transition-colors";
+  const getFieldStyle = (name: string) => ({
+    ...inputStyle,
+    borderColor: focusedField === name ? BRAND : BORDER,
+    boxShadow: focusedField === name ? `0 0 0 3px ${BRAND_T}` : "none",
+    transition: "all 0.2s",
+  });
 
-  const labelStyles =
-    "text-[0.6rem] text-white/70 uppercase tracking-wider font-medium";
-
-  const selectStyles =
-    "w-full text-[0.75rem] rounded-[0.4rem] border border-[#51c2de]/30 bg-transparent px-[0.6rem] py-[0.4rem] outline-none focus:border-[#51c2de] text-white appearance-none cursor-pointer relative z-10";
+  const getSelectStyle = (name: string) => ({
+    ...selectStyle,
+    borderColor: focusedField === name ? BRAND : BORDER,
+    boxShadow: focusedField === name ? `0 0 0 3px ${BRAND_T}` : "none",
+    transition: "all 0.2s",
+  });
 
   return (
-    <div className="w-full h-full p-[1rem] text-white flex flex-col bg-transparent overflow-y-auto"
-      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-    >
-      <style jsx>{`
-        div::-webkit-scrollbar { display: none; }
-        option {
-          background-color: #0a192f;
-          color: white;
-        }
-      `}</style>
-
-      <div className="mb-[0.75rem]">
-        <h2 className="text-[0.6rem] tracking-[0.2em] uppercase text-[#51c2de]">Personnel</h2>
-        <h1 className="text-[1.1rem] font-semibold leading-tight">Create Agent Profile</h1>
-        <p className="text-white/50 text-[0.65rem]">
-          Role: <span className="text-[#51c2de] font-bold">AGENT</span>
+    <div style={{ width: "100%", height: "100%", padding: "24px", display: "flex", flexDirection: "column", overflow: "auto", boxSizing: "border-box", background: "transparent" }}>
+      
+      {/* Header */}
+      <div style={{ marginBottom: "24px", paddingBottom: "16px", borderBottom: `1px solid ${BORDER}` }}>
+        <p style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: BRAND, margin: "0 0 4px" }}>
+          Staff Management
+        </p>
+        <h1 style={{ fontSize: "18px", fontWeight: 700, color: TEXT, margin: "0 0 4px" }}>
+          Create Agent Profile
+        </h1>
+        <p style={{ fontSize: "13px", color: TEXT_MUTED, margin: 0 }}>
+          Assign internal credentials and specialization levels for new agents.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col gap-[0.8rem]">
-        <div className="flex flex-col gap-[0.8rem]">
-
-          {/* PROFILE PICTURE */}
-          <div className="flex justify-center">
-            <div className="relative group w-[3.5rem] h-[3.5rem]">
-              <div className="w-full h-full rounded-full border border-[#51c2de]/60 overflow-hidden bg-transparent flex items-center justify-center">
-                {preview ? (
-                  <img src={preview} alt="Preview" className="w-full h-full object-cover" />
-                ) : (
-                  <Camera className="text-[#51c2de]/40" size={20} />
-                )}
-              </div>
-
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="absolute inset-0 opacity-0 cursor-pointer"
-              />
+      <form onSubmit={handleSubmit(onSubmit)} style={{ display: "flex", flexDirection: "column", gap: "18px", flex: 1 }}>
+        
+        {/* Avatar Section */}
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "8px" }}>
+          <div style={{ position: "relative", width: 64, height: 64 }}>
+            <div style={{
+              width: 64, height: 64, borderRadius: "50%",
+              border: `2px solid ${preview ? BRAND : BORDER}`,
+              background: "#f8fafc", overflow: "hidden",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              {preview 
+                ? <img src={preview} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                : <Camera size={20} color={TEXT_MUTED} />
+              }
+            </div>
+            <input type="file" accept="image/*" onChange={handleImageChange} style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }} />
+            <div style={{
+              position: "absolute", bottom: 0, right: 0,
+              width: 20, height: 20, borderRadius: "50%",
+              background: BRAND, border: `2px solid ${WHITE}`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><path d="M12 5v14M5 12h14"/></svg>
             </div>
           </div>
+        </div>
 
-          {/* FORM FIELDS (UNCHANGED UI) */}
+        {/* Name Row */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+          <div>
+            <label style={labelStyle}>First Name</label>
+            <input {...register("firstName")} style={getFieldStyle("firstName")} onFocus={() => setFocusedField("firstName")} onBlur={() => setFocusedField(null)} />
+            {errors.firstName && <ErrorMsg text={errors.firstName.message!} />}
+          </div>
+          <div>
+            <label style={labelStyle}>Last Name</label>
+            <input {...register("lastName")} style={getFieldStyle("lastName")} onFocus={() => setFocusedField("lastName")} onBlur={() => setFocusedField(null)} />
+            {errors.lastName && <ErrorMsg text={errors.lastName.message!} />}
+          </div>
+        </div>
 
-          <div className="grid grid-cols-2 gap-[0.75rem]">
-            <div className="flex flex-col gap-[0.2rem]">
-              <label className={labelStyles}>First Name</label>
-              <input {...register("firstName")} className={inputStyles} />
-              {errors.firstName && <p className="text-red-400 text-[0.5rem]">{errors.firstName.message}</p>}
-            </div>
+        {/* Auth Row */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+          <div>
+            <label style={labelStyle}>Username</label>
+            <input {...register("username")} style={getFieldStyle("username")} onFocus={() => setFocusedField("username")} onBlur={() => setFocusedField(null)} />
+            {errors.username && <ErrorMsg text={errors.username.message!} />}
+          </div>
+          <div>
+            <label style={labelStyle}>Phone</label>
+            <input {...register("phoneNumber")} style={getFieldStyle("phoneNumber")} onFocus={() => setFocusedField("phoneNumber")} onBlur={() => setFocusedField(null)} />
+            {errors.phoneNumber && <ErrorMsg text={errors.phoneNumber.message!} />}
+          </div>
+        </div>
 
-            <div className="flex flex-col gap-[0.2rem]">
-              <label className={labelStyles}>Last Name</label>
-              <input {...register("lastName")} className={inputStyles} />
-              {errors.lastName && <p className="text-red-400 text-[0.5rem]">{errors.lastName.message}</p>}
-            </div>
+        <div>
+          <label style={labelStyle}>Email Address</label>
+          <input {...register("email")} type="email" style={getFieldStyle("email")} onFocus={() => setFocusedField("email")} onBlur={() => setFocusedField(null)} />
+          {errors.email && <ErrorMsg text={errors.email.message!} />}
+        </div>
+
+        <div>
+          <label style={labelStyle}>Initial Password</label>
+          <input {...register("password")} type="password" style={getFieldStyle("password")} onFocus={() => setFocusedField("password")} onBlur={() => setFocusedField(null)} />
+          {errors.password && <ErrorMsg text={errors.password.message!} />}
+        </div>
+
+        {/* Specialization & Level - Use Brand Tint for this section background */}
+        <div style={{ 
+          marginTop: "8px", padding: "20px", background: "#f8fafc", 
+          borderRadius: "8px", border: `1px solid ${BORDER}`,
+          display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" 
+        }}>
+          <div>
+            <label style={labelStyle}>Specialization</label>
+            <select {...register("specialization")} style={getSelectStyle("specialization")} onFocus={() => setFocusedField("specialization")} onBlur={() => setFocusedField(null)}>
+              <option value="" disabled>Select Expert Area</option>
+              {SpecializationEnum.map(opt => <option key={opt} value={opt}>{opt.replace("_", " ")}</option>)}
+            </select>
+            {errors.specialization && <ErrorMsg text={errors.specialization.message!} />}
           </div>
 
-          {/* KEEP REST EXACT SAME UI */}
-
-          <div className="grid grid-cols-2 gap-[0.75rem]">
-            <div className="flex flex-col gap-[0.2rem]">
-              <label className={labelStyles}>Username</label>
-              <input {...register("username")} className={inputStyles} />
-              {errors.username && <p className="text-red-400 text-[0.5rem]">{errors.username.message}</p>}
-            </div>
-
-            <div className="flex flex-col gap-[0.2rem]">
-              <label className={labelStyles}>Phone</label>
-              <input {...register("phoneNumber")} className={inputStyles} />
-              {errors.phoneNumber && <p className="text-red-400 text-[0.5rem]">{errors.phoneNumber.message}</p>}
-            </div>
+          <div>
+            <label style={labelStyle}>Agent Level</label>
+            <select {...register("level")} style={getSelectStyle("level")} onFocus={() => setFocusedField("level")} onBlur={() => setFocusedField(null)}>
+              <option value="" disabled>Select Level</option>
+              {AgentLevelEnum.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+            </select>
+            {errors.level && <ErrorMsg text={errors.level.message!} />}
           </div>
 
-          <div className="flex flex-col gap-[0.2rem]">
-            <label className={labelStyles}>Email Address</label>
-            <input {...register("email")} className={inputStyles} />
-            {errors.email && <p className="text-red-400 text-[0.5rem]">{errors.email.message}</p>}
+          <div>
+            <label style={labelStyle}>Availability</label>
+            <select {...register("availabilityStatus")} style={getSelectStyle("availabilityStatus")} onFocus={() => setFocusedField("availabilityStatus")} onBlur={() => setFocusedField(null)}>
+              {AvailabilityEnum.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+            </select>
           </div>
 
-          <div className="flex flex-col gap-[0.2rem]">
-            <label className={labelStyles}>Password</label>
-            <input {...register("password")} type="password" className={inputStyles} />
-            {errors.password && <p className="text-red-400 text-[0.5rem]">{errors.password.message}</p>}
+          <div>
+            <label style={labelStyle}>Resolution (Min)</label>
+            <input {...register("averageResolutionTime")} type="number" style={getFieldStyle("averageResolutionTime")} onFocus={() => setFocusedField("averageResolutionTime")} onBlur={() => setFocusedField(null)} />
           </div>
 
-          {/* SELECTS (NO UI CHANGE) */}
-
-          <div className="mt-2 pt-3 border-t border-[#51c2de]/10 grid grid-cols-2 gap-x-[0.75rem] gap-y-[0.6rem]">
-
-            <div className="flex flex-col gap-[0.2rem] relative">
-              <label className={labelStyles}>Specialization</label>
-              <select {...register("specialization")} className={selectStyles}>
-                <option value="" disabled>Select specialization</option>
-                {SpecializationEnum.map(opt => (
-                  <option key={opt} value={opt}>{opt.replace("_", " ")}</option>
-                ))}
-              </select>
-              {errors.specialization && <p className="text-red-400 text-[0.5rem]">{errors.specialization.message}</p>}
-            </div>
-
-            <div className="flex flex-col gap-[0.2rem] relative">
-              <label className={labelStyles}>Agent Level</label>
-              <select {...register("level")} className={selectStyles}>
-                {AgentLevelEnum.map(opt => (
-                  <option key={opt} value={opt}>{opt}</option>
-                ))}
-              </select>
-              {errors.level && <p className="text-red-400 text-[0.5rem]">{errors.level.message}</p>}
-            </div>
-
-            <div className="flex flex-col gap-[0.2rem] relative">
-              <label className={labelStyles}>Status</label>
-              <select {...register("availabilityStatus")} className={selectStyles}>
-                {AvailabilityEnum.map(opt => (
-                  <option key={opt} value={opt}>{opt}</option>
-                ))}
-              </select>
-              {errors.availabilityStatus && <p className="text-red-400 text-[0.5rem]">{errors.availabilityStatus.message}</p>}
-            </div>
-
-            <div className="flex flex-col gap-[0.2rem]">
-              <label className={labelStyles}>Resolution (Min)</label>
-              <input {...register("averageResolutionTime")} type="number" className={inputStyles} />
-              {errors.averageResolutionTime && <p className="text-red-400 text-[0.5rem]">{errors.averageResolutionTime.message}</p>}
-            </div>
-
-            <div className="flex flex-col gap-[0.2rem] col-span-2">
-              <label className={labelStyles}>Performance Rating (1-5)</label>
-              <input {...register("performanceRating")} type="number" step="0.1" className={inputStyles} />
-              {errors.performanceRating && <p className="text-red-400 text-[0.5rem]">{errors.performanceRating.message}</p>}
-            </div>
-
+          <div style={{ colSpan: 2 } as any}>
+            <label style={labelStyle}>Initial Performance Rating (1.0 - 5.0)</label>
+            <input {...register("performanceRating")} type="number" step="0.1" style={getFieldStyle("performanceRating")} onFocus={() => setFocusedField("performanceRating")} onBlur={() => setFocusedField(null)} />
           </div>
         </div>
 
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full mt-auto mb-4 rounded-[0.4rem] py-[0.6rem] text-[0.7rem] font-bold uppercase tracking-widest bg-transparent border border-[#51c2de] text-[#51c2de] hover:bg-[#51c2de] hover:text-white transition-all disabled:opacity-50"
+          style={{
+            width: "100%", padding: "12px", borderRadius: "6px", fontSize: "14px", fontWeight: 600,
+            background: isLoading ? TEXT_MUTED : BRAND, color: WHITE, border: "none",
+            cursor: isLoading ? "default" : "pointer", transition: "all 0.2s", marginTop: "12px"
+          }}
+          onMouseEnter={e => { if(!isLoading) e.currentTarget.style.filter = "brightness(1.1)"; }}
+          onMouseLeave={e => { e.currentTarget.style.filter = "none"; }}
         >
-          {isLoading ? "Synchronizing..." : "Initialize Agent"}
+          {isLoading ? "Synchronizing Data..." : "Initialize Agent Profile"}
         </button>
       </form>
+    </div>
+  );
+}
+
+// ─── Helper Components ────────────────────────────────────────────────────────
+function ErrorMsg({ text }: { text: string }) {
+  return (
+    <div style={{
+      display: "flex", alignItems: "center", gap: "6px", marginTop: "6px",
+      fontSize: "11px", fontWeight: 600, color: DANGER,
+      background: DANGER_T, border: `1px solid rgba(239, 68, 68, 0.1)`,
+      borderRadius: "4px", padding: "4px 8px", width: "fit-content"
+    }}>
+      <div style={{ width: 4, height: 4, borderRadius: "50%", background: DANGER }} />
+      {text}
     </div>
   );
 }
