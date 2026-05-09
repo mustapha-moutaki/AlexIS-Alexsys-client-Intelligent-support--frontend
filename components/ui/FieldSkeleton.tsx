@@ -6,9 +6,7 @@ export default function FieldSkeleton() {
         width: 60,
         height: 10,
         borderRadius: 4,
-        background: "linear-gradient(90deg, #1a1a1e 25%, #2a2a30 50%, #1a1a1e 75%)",
-        backgroundSize: "200% 100%",
-        animation: "shimmer 1.2s infinite linear",
+background: "linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%)",        animation: "shimmer 1.2s infinite linear",
       }}
     />
     )
