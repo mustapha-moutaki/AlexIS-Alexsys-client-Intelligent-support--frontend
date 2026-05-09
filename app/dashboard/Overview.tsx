@@ -3,160 +3,356 @@ import React from "react";
 import { useAdminDashboardOverview } from "@/src/hooks/useAdminDashboardOverview";
 import DashboardSkeleton from "@/src/shared/components/ui/DashboardSkeleton";
 
+// ─── Tokens ───────────────────────────────────────────────────────────────────
+const C = {
+  brand:      "#4f6ef7",
+  brandTint:  "rgba(79, 110, 247, 0.08)",
+  border:     "#e8eaed",
+  borderLight:"#f1f3f5",
+  text:       "#111827",
+  textSub:    "#6b7280",
+  textMuted:  "#9ca3af",
+  bg:         "#f5f6f8",
+  white:      "#ffffff",
+  success:    "#16a34a",
+  successTint:"rgba(22, 163, 74, 0.08)",
+  danger:     "#dc2626",
+  dangerTint: "rgba(220, 38, 38, 0.08)",
+  warning:    "#d97706",
+  warningTint:"rgba(217, 119, 6, 0.08)",
+};
 
-
-// ─── Style Tokens ─────────────────────────────────────────────────────────────
-const cardStyle: React.CSSProperties = {
-  background:"Transparent",
-  border: "1px solid #ffffff47",
-  borderRadius: "1rem",
-  padding: "1rem",
+// ─── Base Styles ──────────────────────────────────────────────────────────────
+const card: React.CSSProperties = {
+  background: C.white,
+  border: `1px solid ${C.border}`,
+  borderRadius: "8px",
+  padding: "1.25rem 1.375rem",
   display: "flex",
   flexDirection: "column",
-  gap: "0.5rem",
+  gap: "0.875rem",
 };
 
-const sectionTitleStyle: React.CSSProperties = {
-  fontSize: "0.65rem",
-  fontWeight: 700,
-  letterSpacing: "0.1em",
+const sectionLabel: React.CSSProperties = {
+  fontSize: "10px",
+  fontWeight: 600,
+  letterSpacing: "0.07em",
   textTransform: "uppercase",
-  color: "#ffffff82",
-  marginBottom: "0.5rem",
+  color: C.textMuted,
 };
 
-// ─── Helper Components ────────────────────────────────────────────────────────
-const Divider = () => <hr style={{ border: "none", borderTop: "1px solid rgba(255,255,255,0.05)", margin: "0.5rem 0" }} />;
+const divider: React.CSSProperties = {
+  border: "none",
+  borderTop: `1px solid ${C.borderLight}`,
+  margin: "0",
+};
 
-const KPI = ({ label, value, sub, color }: any) => (
+// ─── Atoms ────────────────────────────────────────────────────────────────────
+const Divider = () => <hr style={divider} />;
+
+const KPI = ({
+  label,
+  value,
+  sub,
+  color,
+}: {
+  label: string;
+  value: React.ReactNode;
+  sub?: string;
+  color?: string;
+}) => (
   <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-    <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.35)" }}>{label}</span>
-    <span style={{ fontSize: "1.2rem", fontWeight: 700, color: color || "#fff" }}>{value}</span>
-    {sub && <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.25)" }}>{sub}</span>}
+    <span style={{ fontSize: "11px", fontWeight: 500, color: C.textMuted }}>{label}</span>
+    <span
+      style={{
+        fontSize: "1.375rem",
+        fontWeight: 700,
+        color: color ?? C.text,
+        letterSpacing: "-0.025em",
+        lineHeight: 1.2,
+      }}
+    >
+      {value}
+    </span>
+    {sub && (
+      <span style={{ fontSize: "10px", color: C.textMuted }}>{sub}</span>
+    )}
   </div>
 );
 
-const MiniStat = ({ label, value, color }: any) => (
+const Row = ({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: React.ReactNode;
+  color?: string;
+}) => (
   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-    <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>{label}</span>
-    <span style={{ fontSize: "11px", fontWeight: 600, color: color || "#fff" }}>{value}</span>
+    <span style={{ fontSize: "12px", color: C.textSub }}>{label}</span>
+    <span style={{ fontSize: "12px", fontWeight: 600, color: color ?? C.text }}>{value}</span>
   </div>
 );
 
-const ProgressBar = ({ pct, color }: any) => (
-  <div style={{ height: 4, borderRadius: 4, background: "rgba(255,255,255,0.05)", overflow: "hidden", marginTop: 4 }}>
-    <div style={{ width: `${pct}%`, height: "100%", background: color }} />
+const Bar = ({ pct, color }: { pct: number; color?: string }) => (
+  <div
+    style={{
+      height: 4,
+      borderRadius: 99,
+      background: C.borderLight,
+      overflow: "hidden",
+    }}
+  >
+    <div
+      style={{
+        width: `${Math.min(pct, 100)}%`,
+        height: "100%",
+        background: color ?? C.brand,
+        borderRadius: 99,
+        transition: "width 0.4s ease",
+      }}
+    />
   </div>
 );
 
-const MiniCard = ({ label, value, color, bg }: any) => (
-  <div style={{ background: bg, padding: "8px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
-    <div style={{ fontSize: "9px", color: "rgba(255,255,255,0.4)" }}>{label}</div>
-    <div style={{ fontSize: "1rem", fontWeight: 700, color }}>{value}</div>
+const Chip = ({
+  label,
+  value,
+  color = C.text,
+  tint = C.bg,
+}: {
+  label: string;
+  value: React.ReactNode;
+  color?: string;
+  tint?: string;
+}) => (
+  <div
+    style={{
+      background: tint,
+      border: `1px solid ${C.border}`,
+      borderRadius: "6px",
+      padding: "10px 12px",
+      display: "flex",
+      flexDirection: "column",
+      gap: "3px",
+    }}
+  >
+    <span style={{ fontSize: "10px", fontWeight: 500, color: C.textMuted }}>{label}</span>
+    <span style={{ fontSize: "1rem", fontWeight: 700, color }}>{value}</span>
   </div>
 );
 
-const Pill = ({ text, color, bg }: any) => (
-  <span style={{ padding: "2px 8px", borderRadius: "12px", fontSize: "9px", fontWeight: 700, color, background: bg }}>
+const Badge = ({ text }: { text: string }) => (
+  <span
+    style={{
+      display: "inline-block",
+      padding: "3px 8px",
+      borderRadius: "4px",
+      fontSize: "11px",
+      fontWeight: 600,
+      background: C.brandTint,
+      color: C.brand,
+      border: `1px solid rgba(79,110,247,0.15)`,
+    }}
+  >
     {text}
   </span>
 );
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+const StatCell = ({ label, value }: { label: string; value: React.ReactNode }) => (
+  <div style={{ textAlign: "center" }}>
+    <div style={{ fontSize: "10px", color: C.textMuted, marginBottom: "2px" }}>{label}</div>
+    <div style={{ fontWeight: 700, fontSize: "13px", color: C.text }}>{value}</div>
+  </div>
+);
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
 export default function Overview() {
-  const fmtTime = (m: number) => `${Math.floor(m / 60)}h ${m % 60}m`;
 
-    // // get admin dashboard overview 
-  const {data, isLoading, isError, error, isFetching, refetch} = useAdminDashboardOverview();
+  const fmtTime = (m: number) => {
+  const hours = Math.floor(m / 60);
+  const minutes = (m % 60).toFixed(2).replace(".", ",");
+  
+  return `${hours}h ${minutes}m`;
+};
+  const { data, isLoading, isError, refetch } = useAdminDashboardOverview();
 
-  if(isLoading){
+  if (isLoading) return <DashboardSkeleton />;
+
+  if (isError)
     return (
-      <div>
-        <DashboardSkeleton />
+      <div style={{ padding: "3rem", textAlign: "center" }}>
+        <p style={{ color: C.textSub, fontSize: "14px", marginBottom: "1rem" }}>
+          Failed to load dashboard data.
+        </p>
+        <button
+          onClick={() => refetch()}
+          style={{
+            padding: "7px 18px",
+            background: C.brand,
+            color: "#fff",
+            border: "none",
+            borderRadius: "6px",
+            fontSize: "13px",
+            fontWeight: 500,
+            cursor: "pointer",
+          }}
+        >
+          Retry
+        </button>
       </div>
-    )
-  }
-
-  if(isError){
-    return (
-      <div>
-        <h1>Error</h1>
-        <button onClick={() => refetch()}>Retry</button>
-      </div>
-    )
-  }
-
+    );
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "1rem"}}>
-      {/* Title */}
-      <div>
-        <h1 style={{ fontSize: "1.2rem", fontWeight: 700, margin: 0 }}>Dashboard Overview</h1>
-        <p style={{ fontSize: "11px", color: "#ffffff4d", margin: "4px 0 0" }}>
-          Real-time metrics for April 30, 2026
-        </p>
+    <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+
+      {/* Page Header */}
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+        <div>
+          <h1 style={{ fontSize: "1.125rem", fontWeight: 700, color: C.text, margin: 0 }}>
+            Overview
+          </h1>
+          <p style={{ fontSize: "12px", color: C.textMuted, margin: "3px 0 0" }}>
+            April 30, 2026 — Daily summary
+          </p>
+        </div>
+        <span
+          style={{
+            fontSize: "11px",
+            color: C.textMuted,
+            background: C.white,
+            border: `1px solid ${C.border}`,
+            padding: "4px 10px",
+            borderRadius: "5px",
+          }}
+        >
+          Live
+        </span>
       </div>
 
-      {/* Row 1: 3 Column KPIs */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
-        <div style={cardStyle}>
-          <div style={sectionTitleStyle}>Clients</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-            <KPI label="Total" value={data?.totalClients.toLocaleString()} sub="Lifetime" />
-            <KPI label="New Today" value={`+${data?.totalClientsToDay}`} color="#34d9a5" />
+      {/* Row 1: Primary KPIs */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
+
+        {/* Client Engagement */}
+        <div style={card}>
+          <span style={sectionLabel}>Client Engagement</span>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+            <KPI label="Total Clients" value={data?.totalClients.toLocaleString()} sub="Lifetime" />
+            <KPI label="New Today" value={`+${data?.totalClientsToDay}`} color={C.success} />
           </div>
           <Divider />
-          <MiniStat label="Active Now" value={data?.activeClients.toLocaleString()} color="#60a5fa" />
-          <MiniStat label="At Risk" value={data?.lowSatisfactionClient} color="#f87171" />
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <Row label="Active Now" value={data?.activeClients.toLocaleString()} color={C.brand} />
+            <Row label="At Risk" value={data?.lowSatisfactionClient} color={C.danger} />
+          </div>
         </div>
 
-        <div style={cardStyle}>
-          <div style={sectionTitleStyle}>Agents</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+        {/* Agent Utilization */}
+        <div style={card}>
+          <span style={sectionLabel}>Agent Utilization</span>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
             <KPI label="Total Staff" value={data?.totalAgents} />
-            <KPI label="Available" value={data?.totalAvailableAgents} color="#34d9a5" />
+            <KPI label="Available" value={data?.totalAvailableAgents} color={C.success} />
           </div>
           <Divider />
-          <MiniStat label="Average Load" value={`${data?.avgLoadPerAgent} tickets`} />
-          <MiniStat label="Busy" value={data?.totalBusyAgents} color="#f5c542" />
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <Row label="Avg. Load" value={`${data?.avgLoadPerAgent} tickets`} />
+            <Row label="Busy" value={data?.totalBusyAgents} color={C.warning} />
+          </div>
         </div>
 
-        <div style={cardStyle}>
-          <div style={sectionTitleStyle}>Satisfaction</div>
-          <KPI label="CSAT Score" value={`${(data?.avgSatisfactionScore? data?.avgSatisfactionScore : 0)/5}/5`} />
-          <ProgressBar pct={(data?.avgSatisfactionScore ? (data?.avgSatisfactionScore / 5) * 100 : 0)} color="linear-gradient(90deg, #7C3AED, #51c2de)" />
-          <div style={{ marginTop: "8px" }}>
-            <MiniStat label="Resolution Time" value={fmtTime(Number(data?.averageResolutionTime))} />
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px" }}>
-              <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)" }}>Top Performer</span>
-              <Pill text={data?.bestAgent} color="#fff" bg="#371450" />
+        {/* Service Quality */}
+        <div style={card}>
+          <span style={sectionLabel}>Service Quality</span>
+          <KPI
+            label="CSAT Score"
+            value={`${(data?.avgSatisfactionScore ?? 0) / 5} / 5`}
+          />
+          <Bar pct={((data?.avgSatisfactionScore ?? 0) / 5) * 100} />
+          <Divider />
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <Row
+              label="Avg. Resolution"
+              value={fmtTime(Number(data?.averageResolutionTime))}
+            />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <span style={{ fontSize: "12px", color: C.textSub }}>Top Performer</span>
+              <Badge text={data?.bestAgent ?? "—"} />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Row 2: Secondary Stats */}
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "1rem" }}>
-        <div style={cardStyle}>
-          <div style={sectionTitleStyle}>System Health</div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px" }}>
-            <MiniCard label="High Priority" value={data?.highPriorityTickets} color="#f87171" bg="rgba(248,113,113,0.05)" />
-            <MiniCard label="Resolved Today" value={data?.totalTicketsToday} color="#34d9a5" bg="rgba(52,217,165,0.05)" />
-            <MiniCard label="Categories" value={data?.totalCategories} color="#60a5fa" bg="rgba(96,165,250,0.05)" />
-            <MiniCard label="Avg Rating" value={data?.avgPerformanceRating} color="#60a5fa" bg="rgba(96,165,250,0.05)" />
-            <MiniCard label="Overload Agents" value={data?.overloadAgents} color="#60a5fa" bg="rgba(96,165,250,0.05)" />
+      {/* Row 2: Secondary */}
+      <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "1rem" }}>
+
+        {/* System Health */}
+        <div style={card}>
+          <span style={sectionLabel}>System Health & Performance</span>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "8px",
+            }}
+          >
+            <Chip
+              label="High Priority"
+              value={data?.highPriorityTickets}
+              color={C.danger}
+              tint={C.dangerTint}
+            />
+            <Chip
+              label="Resolved Today"
+              value={data?.totalTicketsToday}
+              color={C.success}
+              tint={C.successTint}
+            />
+            <Chip label="Categories" value={data?.totalCategories} />
+            <Chip
+              label="Avg Rating"
+              value={data?.avgPerformanceRating}
+              color={C.brand}
+              tint={C.brandTint}
+            />
+            <Chip
+              label="Overloaded"
+              value={data?.overloadAgents}
+              color={C.warning}
+              tint={C.warningTint}
+            />
           </div>
         </div>
-        <div style={cardStyle}>
-          <div style={sectionTitleStyle}>My Tasks</div>
-          <MiniStat label="Pending" value={data?.countMyOpenTickets} color="#f5c542" />
-          <MiniStat label="In Progress" value={data?.countMyInProgressTickets} color="#60a5fa" />
+
+        {/* Management Console */}
+        <div style={card}>
+          <span style={sectionLabel}>Management Console</span>
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <Row label="Pending Tasks" value={data?.countMyOpenTickets} color={C.warning} />
+            <Row label="In Progress" value={data?.countMyInProgressTickets} color={C.brand} />
+          </div>
           <Divider />
-          <MiniStat label="Needs Attention" value={data?.ticketsNeedingAttention} color="#f87171" />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px" }}>
-            <MiniCard label="Total Ative Tickets" value={data?.totalActiveTickets} color="#f87171" bg="rgba(248,113,113,0.05)" />
-            <MiniCard label="Total Resolved Tickets" value={data?.totalResolvedTickets} color="#34d9a5" bg="rgba(52,217,165,0.05)" />
-            <MiniCard label="Total Closed Tickets" value={data?.totalClosedTickets} color="#60a5fa" bg="rgba(96,165,250,0.05)" />
+          <Row label="Requires Action" value={data?.ticketsNeedingAttention} color={C.danger} />
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "8px",
+              padding: "10px 0 2px",
+              borderTop: `1px solid ${C.borderLight}`,
+              marginTop: "2px",
+            }}
+          >
+            <StatCell label="Active" value={data?.totalActiveTickets} />
+            <StatCell label="Resolved" value={data?.totalResolvedTickets} />
+            <StatCell label="Closed" value={data?.totalClosedTickets} />
           </div>
         </div>
       </div>
