@@ -2,30 +2,61 @@
 import { useState } from "react";
 
 const ROLES = ["All roles", "SUPER_ADMIN", "ADMIN", "AGENT", "CLIENT"];
-const COL = "32px 2fr 1fr 0.8fr 0.9fr 1.4fr 100px";
+
 const AVATAR_PALETTE = [
-  { bg: "rgba(81,194,222,0.18)", color: "#51c2de" },
-  { bg: "rgba(55,20,80,0.60)", color: "#c084fc" },
-  { bg: "rgba(6,182,212,0.15)", color: "#22d3ee" },
-  { bg: "rgba(99,102,241,0.18)", color: "#818cf8" },
+  { bg: "rgba(99, 102, 241, 0.1)",  color: "#6366f1" },
+  { bg: "rgba(139, 92, 246, 0.1)", color: "#8b5cf6" },
+  { bg: "rgba(20, 184, 166, 0.1)",  color: "#14b8a6" },
+  { bg: "rgba(245, 158, 11, 0.1)",  color: "#f59e0b" },
 ];
 
-const A = "#51c2de", AB = "rgba(81,194,222,0.12)", AB2 = "rgba(81,194,222,0.04)", BDR = "1px solid rgba(255,255,255,0.07)", DIM = "#ffffff61";
+const BRAND      = "#4f46e5"; // Professional Indigo
+const BRAND_T    = "rgba(79, 70, 229, 0.08)"; // 8% Brand Tint
+const BORDER     = "#e2e8f0";
+const BORDER_L   = "#f1f5f9";
+const TEXT       = "#1e293b";
+const TEXT_SUB   = "#475569";
+const TEXT_MUTED = "#94a3b8";
+const BG_SUBTLE  = "#f8fafc";
+const WHITE      = "#ffffff";
+const SUCCESS    = "#10b981";
+const DANGER     = "#ef4444";
 
-const selectStyleBase = {
-  background: "rgba(255,255,255,0.05)",
-  border: "1px solid rgba(255,255,255,0.1)",
-  color: "#51c2de",
-  fontSize: "11px",
-  padding: "4px 24px 4px 10px",
+const selectStyle: React.CSSProperties = {
+  background: WHITE,
+  border: `1px solid ${BORDER}`,
+  color: TEXT,
+  fontSize: "12px",
+  fontWeight: 500,
+  padding: "5px 28px 5px 12px",
   outline: "none",
   borderRadius: "6px",
   cursor: "pointer",
-  appearance: "none" as const,
-  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%2351c2de' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
+  appearance: "none",
+  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
   backgroundRepeat: "no-repeat",
-  backgroundPosition: "right 8px center",
-  backgroundSize: "12px",
+  backgroundPosition: "right 10px center",
+  backgroundSize: "14px",
+};
+
+const thStyle: React.CSSProperties = {
+  // padding: "12px 16px",
+  fontSize: "11px",
+  fontWeight: 600,
+  textTransform: "uppercase",
+  letterSpacing: "0.025em",
+  color: TEXT_MUTED,
+  textAlign: "left",
+  background: BG_SUBTLE,
+  borderBottom: `1px solid ${BORDER}`,
+};
+
+const tdStyle: React.CSSProperties = {
+  padding: "12px 16px",
+  fontSize: "13px",
+  color: TEXT_SUB,
+  borderBottom: `1px solid ${BORDER_L}`,
+  verticalAlign: "middle",
 };
 
 interface UserListProps {
@@ -45,167 +76,273 @@ interface UserListProps {
   onViewUser?: (userId: number) => void;
 }
 
-export default function UserList({ 
-  users, totalElements, totalPages, currentPage, onPageChange, 
-  currentRole, onRoleChange, sortBy, setSortBy, direction, 
-  setDirection, includeDeleted, setIncludeDeleted, onViewUser 
+export default function UserList({
+  users, totalElements, totalPages, currentPage, onPageChange,
+  currentRole, onRoleChange, sortBy, setSortBy, direction,
+  setDirection, includeDeleted, setIncludeDeleted, onViewUser,
 }: UserListProps) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<number[]>([]);
 
   const toggleSelect = (id: number) =>
     setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
-
   const toggleAll = () =>
     setSelected(selected.length === users.length ? [] : users.map((u) => u.id));
 
+  const filtered = users.filter((u) =>
+    search === "" ||
+    `${u.firstName} ${u.lastName} ${u.email}`.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden" style={{ color: "white" }}>
-        
-        {/* Main Table Container */}
-        <div className="rounded-2xl flex flex-col flex-1 overflow-hidden" style={{ border: BDR, background: "rgba(255,255,255,0.01)" }}>
-          
-          {/* Toolbar */}
-          <div className="flex flex-col gap-3 flex-shrink-0" style={{ borderBottom: BDR, background: AB2, padding: "12px 14px" }}>
-            
-            {/* Top row: Search & Role Tabs */}
-            <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 rounded-lg flex-1" style={{ background: "#ffffff09", border: "1px solid rgba(255,255,255,0.09)", padding: "5px 10px" }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={DIM} strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name or email..." className="bg-transparent outline-none w-full" style={{ color: "rgba(255,255,255,0.85)", fontSize: 11 }} />
-                </div>
+    <div style={{ display: "flex", flexDirection: "column", minHeight: 0, flex: 1, width: "100%" }}>
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        flex: 1,
+        minHeight: 0,
+        border: `1px solid ${BORDER}`,
+        borderRadius: "8px",
+        background: WHITE,
+        boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.02)",
+        overflow: "hidden",
+      }}>
 
-                <div className="flex items-center gap-0.5">
-                {ROLES.map((r) => (
-                    <button
-                        key={r}
-                        onClick={() => { onRoleChange(r === "All roles" ? "" : r); onPageChange(1); }}
-                        className="rounded-lg font-medium transition-all"
-                        style={{
-                            fontSize: 10, padding: "5px 10px",
-                            ...( (currentRole === "" && r === "All roles") || currentRole === r
-                                ? { background: AB, color: A, border: "1px solid rgba(81,194,222,0.28)" }
-                                : { background: "transparent", color: DIM, border: "1px solid transparent" })
-                        }}
-                    >
-                        {r === "All roles" ? "All" : r.replace('_', ' ')}
-                    </button>
-                ))}
-                </div>
+        {/* ── Toolbar ── */}
+        <div style={{
+          flexShrink: 0,
+          borderBottom: `1px solid ${BORDER}`,
+          padding: "16px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "16px",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
+            {/* Search */}
+            <div style={{
+              display: "flex", alignItems: "center", gap: "10px",
+              flex: 1, maxWidth: "400px", background: WHITE, border: `1px solid ${BORDER}`,
+              borderRadius: "6px", padding: "6px 12px", focusWithin: { borderColor: BRAND }
+            } as any}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={TEXT_MUTED} strokeWidth="2.5">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search staff, admins, or clients..."
+                style={{ background: "transparent", outline: "none", width: "100%", fontSize: "13px", color: TEXT, border: "none" }}
+              />
             </div>
 
-            {/* Bottom row: Sort, Direction, Inclusion */}
-            <div className="flex items-center gap-4">
-              <div className="bg-red-400">advanced settings</div>
+            {/* Role Switcher */}
+            <div style={{ display: "flex", background: BG_SUBTLE, padding: "3px", borderRadius: "8px", border: `1px solid ${BORDER_L}` }}>
+              {ROLES.map((r) => {
+                const active = (currentRole === "" && r === "All roles") || currentRole === r;
+                return (
+                  <button
+                    key={r}
+                    onClick={() => { onRoleChange(r === "All roles" ? "" : r); onPageChange(1); }}
+                    style={{
+                      fontSize: "12px", fontWeight: 600, padding: "6px 12px",
+                      borderRadius: "6px", cursor: "pointer", border: "none",
+                      background: active ? WHITE : "transparent",
+                      color: active ? BRAND : TEXT_MUTED,
+                      boxShadow: active ? "0 1px 2px rgba(0,0,0,0.05)" : "none",
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    {r === "All roles" ? "All" : r.replace("_", " ")}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-              
-                <div className="flex items-center gap-2">
-                    <span style={{ fontSize: 10, color: DIM, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Sort by</span>
-                    <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} style={selectStyleBase}>
-                        <option value="id" style={{ background: "#21212b", color: "white" }}>ID</option>
-                        <option value="firstName" style={{ background: "#21212b", color: "white" }}>First Name</option>
-                        <option value="lastName" style={{ background: "#21212b", color: "white" }}>Last Name</option>
-                        <option value="email" style={{ background: "#21212b", color: "white" }}>Email</option>
-                    </select>
-
-                    
-                </div>
-
-                <div className="flex items-center gap-2">
-                    <span style={{ fontSize: 10, color: DIM, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Order</span>
-                    <select value={direction} onChange={(e) => setDirection(e.target.value as any)} style={selectStyleBase}>
-                        <option value="asc" style={{background:"#21212b"}}>Ascending</option>
-                        <option value="desc" style={{background:"#21212b"}}>Descending</option>
-                    </select>
-                </div>
-
-                <div className="h-4 w-px" style={{ background: "rgba(255,255,255,0.1)" }} />
-
-                <button 
-                  onClick={() => setIncludeDeleted(!includeDeleted)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all"
-                  style={{ 
-                    fontSize: 10, 
-                    border: BDR,
-                    background: includeDeleted ? "rgba(248,113,113,0.1)" : "transparent",
-                    color: includeDeleted ? "#f87171" : DIM
-                  }}
-                >
-                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: includeDeleted ? "#f87171" : "rgba(255,255,255,0.2)" }} />
-                    Show Deleted
-                </button>
-                
-
-
-
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ fontSize: "11px", fontWeight: 600, color: TEXT_MUTED }}>SORT</span>
+                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} style={selectStyle}>
+                  <option value="firstName">Name</option>
+                  <option value="email">Email</option>
+                  <option value="id">ID</option>
+                </select>
+                <select value={direction} onChange={(e) => setDirection(e.target.value as any)} style={selectStyle}>
+                  <option value="asc">Ascending</option>
+                  <option value="desc">Descending</option>
+                </select>
+              </div>
             </div>
 
-            
-          </div>
-
-          {/* Table Content */}
-          <div className="grid flex-shrink-0" style={{ gridTemplateColumns: COL, color: "rgba(81,194,222,0.5)", borderBottom: BDR, background: "rgba(81,194,222,0.03)", padding: "8px 14px", fontSize: 10, fontWeight: 600, textTransform: "uppercase" }}>
-            <div className="flex items-center"><input type="checkbox" checked={selected.length === users.length && users.length > 0} onChange={toggleAll} style={{ width: 12, height: 12 }} className="accent-[#51c2de]" /></div>
-            <div>User</div><div>Role</div><div>Status</div><div>Phone</div><div>Email</div><div style={{ textAlign: "right" }}>Actions</div>
-          </div>
-
-          <div className="flex flex-col flex-1 overflow-y-auto">
-            {users.length === 0 ? (
-                <div className="flex-1 flex items-center justify-center flex-col gap-2 opacity-30">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-                    <span style={{ fontSize: 12 }}>No users found</span>
-                </div>
-            ) : users.map((user, i) => {
-              const av = AVATAR_PALETTE[user.id % AVATAR_PALETTE.length];
-              return (
-                <div key={user.id} className="grid items-center flex-shrink-0 hover:bg-white/[0.02] transition-colors" style={{ gridTemplateColumns: COL, borderBottom: "1px solid rgba(255,255,255,0.04)", padding: "10px 14px" }}>
-                  <div className="flex items-center"><input type="checkbox" checked={selected.includes(user.id)} onChange={() => toggleSelect(user.id)} className="accent-[#51c2de]" /></div>
-                  <div className="flex items-center gap-2">
-                    <div className="rounded-full flex items-center justify-center font-bold" style={{ width: 28, height: 28, background: av.bg, color: av.color, fontSize: 10, border: `1px solid ${av.color}33` }}>
-                      {user.firstName[0]}{user.lastName[0]}
-                    </div>
-                    <div className="flex flex-col truncate">
-                      <span style={{ fontSize: 12, fontWeight: 500 }}>{user.firstName} {user.lastName}</span>
-                      <span style={{ fontSize: 9, color: DIM }}>@{user.username}</span>
-                    </div>
-                  </div>
-                  <div><span className="rounded-md" style={{ fontSize: 9, padding: "3px 8px", background: user.role === "SUPER_ADMIN" ? "rgba(192,132,252,0.15)" : AB, color: user.role === "SUPER_ADMIN" ? "#c084fc" : A, border: `1px solid ${user.role === "SUPER_ADMIN" ? "#c084fc33" : "#51c2de33"}` }}>{user.role}</span></div>
-                  <div><span style={{ color: "#4ade80", fontSize: 11, display: 'flex', alignItems: 'center', gap: '5px' }}><div style={{ width: 5, height: 5, background: '#4ade80', borderRadius: '50%' }} />Active</span></div>
-                  <div style={{ color: DIM, fontSize: 11 }}>{user.phoneNumber}</div>
-                  <div className="truncate" style={{ color: "rgba(81,194,222,0.58)", fontSize: 11 }}>{user.email}</div>
-                  <div className="flex justify-end gap-1.5">
-                     <button title="View Details" onClick={() => onViewUser?.(user.id)} className="flex items-center justify-center rounded-lg transition-all hover:scale-110" style={{ width: 26, height: 26, background: AB, color: A, border: "1px solid rgba(81,194,222,0.2)" }}>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                     </button>
-                     <button title="Block User" className="flex items-center justify-center rounded-lg transition-all hover:scale-110" style={{ width: 26, height: 26, background: "rgba(255,255,255,0.03)", color: DIM, border: BDR }}>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-                     </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Pagination Footer */}
-          <div className="flex items-center justify-between flex-shrink-0" style={{ borderTop: BDR, background: AB2, padding: "10px 14px" }}>
-            <span style={{ color: DIM, fontSize: 11 }}>Page <b style={{ color: "white" }}>{currentPage}</b> of {totalPages}</span>
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={() => onPageChange(currentPage - 1)} 
-                disabled={currentPage === 1}
-                className="rounded-lg px-4 py-1.5 font-medium transition-all" 
-                style={{ fontSize: 11, background: "transparent", color: currentPage === 1 ? "rgba(255,255,255,0.1)" : "white", border: BDR }}
-              >Previous</button>
-              
-              <button 
-                onClick={() => onPageChange(currentPage + 1)} 
-                disabled={currentPage === totalPages}
-                className="rounded-lg px-4 py-1.5 font-bold transition-all hover:scale-[1.02]" 
-                style={{ fontSize: 11, background: currentPage === totalPages ? "transparent" : A, color: currentPage === totalPages ? "rgba(255,255,255,0.1)" : "#0d0014", border: currentPage === totalPages ? BDR : "none" }}
-              >Next</button>
-            </div>
+            <button
+              onClick={() => setIncludeDeleted(!includeDeleted)}
+              style={{
+                display: "flex", alignItems: "center", gap: "8px",
+                fontSize: "12px", fontWeight: 500, padding: "6px 12px",
+                borderRadius: "6px", cursor: "pointer",
+                border: `1px solid ${includeDeleted ? DANGER : BORDER}`,
+                background: includeDeleted ? "rgba(239, 68, 68, 0.05)" : WHITE,
+                color: includeDeleted ? DANGER : TEXT_SUB,
+              }}
+            >
+              Show Archive
+            </button>
           </div>
         </div>
+
+        {/* ── Scrollable Table Area ── */}
+        <div style={{ flex: 1, minHeight: 0, overflow: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
+            {/* NO WHITESPACE IN COLGROUP TO PREVENT HYDRATION ERROR */}
+            <colgroup><col style={{width:"48px"}}/><col style={{width:"25%"}}/><col style={{width:"15%"}}/><col style={{width:"12%"}}/><col style={{width:"18%"}}/><col/><col style={{width:"80px"}}/></colgroup>
+
+            <thead>
+              <tr>
+                <th style={{ ...thStyle, paddingLeft: "20px" }}>
+                  <input
+                    type="checkbox"
+                    checked={selected.length === users.length && users.length > 0}
+                    onChange={toggleAll}
+                    style={{ width: 14, height: 14, accentColor: BRAND, cursor: "pointer" }}
+                  />
+                </th>
+                <th style={thStyle}>User</th>
+                <th style={thStyle}>Role</th>
+                <th style={thStyle}>Status</th>
+                <th style={thStyle}>Phone</th>
+                <th style={thStyle}>Email</th>
+                <th style={{ ...thStyle, textAlign: "right", paddingRight: "20px" }}></th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={7} style={{ padding: "60px 0", textAlign: "center" }}>
+                    <span style={{ fontSize: "13px", color: TEXT_MUTED }}>No matching records found</span>
+                  </td>
+                </tr>
+              ) : filtered.map((user) => {
+                const av = AVATAR_PALETTE[user.id % AVATAR_PALETTE.length];
+                const isSuperAdmin = user.role === "SUPER_ADMIN";
+                return (
+                  <tr
+                    key={user.id}
+                    style={{ transition: "background 0.2s" }}
+                    onMouseEnter={e => (e.currentTarget.style.background = "#fcfdfe")}
+                    onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                  >
+                    <td style={{ ...tdStyle, paddingLeft: "20px" }}>
+                      <input
+                        type="checkbox"
+                        checked={selected.includes(user.id)}
+                        onChange={() => toggleSelect(user.id)}
+                        style={{ width: 14, height: 14, accentColor: BRAND, cursor: "pointer" }}
+                      />
+                    </td>
+
+                    <td style={tdStyle}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                        <div style={{
+                          width: 32, height: 32, borderRadius: "50%",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: "11px", fontWeight: 700, background: av.bg, color: av.color,
+                        }}>
+                          {user.firstName[0]}{user.lastName[0]}
+                        </div>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: "13px", fontWeight: 600, color: TEXT }}>{user.firstName} {user.lastName}</div>
+                          <div style={{ fontSize: "11px", color: TEXT_MUTED }}>@{user.username}</div>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td style={tdStyle}>
+                      <span style={{
+                        fontSize: "11px", fontWeight: 600, padding: "2px 8px", borderRadius: "4px",
+                        background: isSuperAdmin ? "rgba(139, 92, 246, 0.08)" : BRAND_T,
+                        color: isSuperAdmin ? "#7c3aed" : BRAND,
+                        border: `1px solid ${isSuperAdmin ? "rgba(139, 92, 246, 0.1)" : "rgba(79, 70, 229, 0.1)"}`,
+                      }}>
+                        {user.role.replace("_", " ")}
+                      </span>
+                    </td>
+
+                    <td style={tdStyle}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: SUCCESS }} />
+                        <span style={{ fontSize: "12px", color: TEXT_SUB, fontWeight: 500 }}>Active</span>
+                      </div>
+                    </td>
+
+                    <td style={tdStyle}>{user.phoneNumber || "—"}</td>
+                    <td style={{ ...tdStyle, color: TEXT_MUTED }}>{user.email}</td>
+
+                    <td style={{ ...tdStyle, paddingRight: "20px" }}>
+                      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                        <button
+                          onClick={() => onViewUser?.(user.id)}
+                          style={{
+                            padding: "6px", borderRadius: "6px", background: "transparent",
+                            border: "none", color: TEXT_MUTED, cursor: "pointer", transition: "all 0.2s"
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.background = BRAND_T; e.currentTarget.style.color = BRAND; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = TEXT_MUTED; }}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* ── Pagination ── */}
+        <div style={{
+          flexShrink: 0,
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          borderTop: `1px solid ${BORDER}`,
+          padding: "12px 20px",
+          background: WHITE,
+        }}>
+          <span style={{ fontSize: "13px", color: TEXT_MUTED }}>
+            Showing <strong style={{ color: TEXT }}>{users.length}</strong> of {totalElements.toLocaleString()} users
+          </span>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <button
+              onClick={() => onPageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              style={{
+                fontSize: "13px", fontWeight: 500, padding: "6px 16px", borderRadius: "6px",
+                cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                background: WHITE, color: TEXT_SUB, border: `1px solid ${BORDER}`,
+                opacity: currentPage === 1 ? 0.5 : 1,
+              }}
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => onPageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              style={{
+                fontSize: "13px", fontWeight: 500, padding: "6px 16px", borderRadius: "6px",
+                cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                background: BRAND, color: WHITE, border: "none",
+                opacity: currentPage === totalPages ? 0.5 : 1,
+              }}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }
