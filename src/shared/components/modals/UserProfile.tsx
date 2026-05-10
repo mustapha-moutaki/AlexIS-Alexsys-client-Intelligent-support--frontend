@@ -2,7 +2,7 @@
 import React from "react";
 import { 
   User, Mail, Phone, Shield, Settings, 
-  MapPin, Activity, Zap, Star, bell
+  MapPin, Activity, Zap, Star
 } from "lucide-react";
 
 interface UserProfileProps {
