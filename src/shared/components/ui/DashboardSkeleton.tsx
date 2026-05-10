@@ -5,7 +5,7 @@ import React from "react";
 const Shimmer = ({ className, style }) => (
   <div
     style={{
-      background: "linear-gradient(90deg, #1a1a1e 25%, #242429 50%, #1a1a1e 75%)",
+background: "linear-gradient(90deg, #ffffff 25%, #f5f5f5 50%, #ffffff 75%)",
       backgroundSize: "200% 100%",
       animation: "shimmer 1.5s infinite linear",
       borderRadius: "0.25rem",
