@@ -61,18 +61,8 @@ export const getClientById = async (id: string) => {
 }
 
 export const updateClient = async (id: string, data: ClientEditRequest) => {
-    const formData = new FormData();
 
-    formData.append("firstName", data.firstName);
-    formData.append("lastName", data.lastName);
-    formData.append("username", data.username);
-    formData.append("email", data.email);
-    formData.append("phoneNumber", data.phoneNumber);
-    
-    if(data.profilePicture){
-        formData.append("profilePicture", data.profilePicture);
-    }
-    const res = await api.put(`${CLIENTENDPOINT}/${id}`,data);
+    const res = await api.patch(`${CLIENTENDPOINT}/${id}`,data);
     return res.data.data;
 }
 
