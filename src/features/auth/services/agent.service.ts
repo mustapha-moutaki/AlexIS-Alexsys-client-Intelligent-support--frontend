@@ -58,16 +58,6 @@ export const deleteAgent = async(id:string)=>{
     return res.data.data;
 }
 
-export const softDeleteAgent = async(id:string)=>{
-    const res = await api.put(`${AGENTENDPOINT}/soft-delete/${id}`);
-    return res.data.data;
-}
-
-export const restoreAgent = async(id:string)=>{
-    const res = await api.put(`${AGENTENDPOINT}/restore/${id}`);
-    return res.data.data;
-}
-
 export const getTopAgents = async(limit:number)=>{
     const res = await api.get(`${AGENTENDPOINT}/top-agents?limit=${limit}`);
     return res.data.data;
