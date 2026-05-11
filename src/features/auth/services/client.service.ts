@@ -80,3 +80,9 @@ export const updateProfile = async(id:any, data: ClientEditProfile)=>{
     return res.data.data;
 }
 
+
+
+export const deleteClient = async(id:string)=>{
+    const res = await api.delete(`${CLIENTENDPOINT}/${id}`);
+    return res.data.data;
+}
