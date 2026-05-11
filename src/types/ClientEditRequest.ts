@@ -6,6 +6,6 @@ export interface ClientEditRequest{
     phoneNumber: string;
     isVip: boolean;
     satisfactionScore: number;
-    profilePicture: string | null;
+    profilePicture?: string | null;
 
 }
