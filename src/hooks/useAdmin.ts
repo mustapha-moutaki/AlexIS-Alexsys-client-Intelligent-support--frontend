@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createAdminUser, getAdmins, updateAdmin } from "@/src/features/auth/services/admin.service";
+import { createAdminUser, deleteAdmin, getAdmins, updateAdmin } from "@/src/features/auth/services/admin.service";
 
 import toast from "react-hot-toast";
 import { UserEditRequest } from "../types/UserEditRequest";
+import { deleteClient } from "../features/auth/services/client.service";
 
 export const useCreateAdmin = () => {
   const queryClient = useQueryClient();
@@ -66,3 +67,26 @@ export const useUpdateAdmin = () => {
     },
   });
 };
+
+
+export const useDeleteAdmin = ()=>{
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id:string)=> deleteAdmin(id),
+
+    onMutate: () => {
+      toast.loading("Deleting admin...");
+    },
+
+    onSuccess: () => {
+      toast.dismiss();
+      toast.success("Admin deleted successfully");
+    },
+
+    onError: () => {
+      toast.dismiss();
+      toast.error("Failed to delete admin");
+    },
+  })
+}
