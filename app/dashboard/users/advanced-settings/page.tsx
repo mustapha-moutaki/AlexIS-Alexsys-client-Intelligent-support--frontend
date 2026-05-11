@@ -10,13 +10,14 @@ import Breadcrumbs from "@/src/shared/components/ui/Breadcrumbs";
 import AdminsList from "@/src/shared/components/forms/AdminsList";
 import AgentsList from "@/src/shared/components/forms/AgentsList";
 import ClientsList from "@/src/shared/components/forms/ClientsList";
-import { useAdmins } from "@/src/hooks/useAdmin";
+import { useAdmins, useDeleteAdmin } from "@/src/hooks/useAdmin";
 import type { User } from "@/src/types/User";
 import { Agent } from "http";
 import { Client } from "@/src/types/Client";
-import { useAgents } from "@/src/hooks/useAgent";
-import { useClients } from "@/src/hooks/useClient";
+import { useAgents, useDeleteAgent } from "@/src/hooks/useAgent";
+import { useClients, useDeleteClient } from "@/src/hooks/useClient";
 import SimpleSpinner from "@/components/ui/SimpleSpinner";
+import toast from "react-hot-toast";
 
 export default function ManageUsersPage() {
   const router = useRouter();
@@ -29,6 +30,11 @@ export default function ManageUsersPage() {
     isVip: undefined as boolean | undefined,
     isActive: undefined as boolean | undefined
   });
+
+
+  const {mutate:mutateAgent,isPending:isPenndingAgent, error:agentError}=useDeleteAgent();
+  const {mutate:mutateClient,isPending:isPenndingClient, error:clientError}=useDeleteClient();
+  const {mutate:mutateAdmin,isPending:isPenndingAdmin, error:adminError}=useDeleteAdmin();
 
   const tabs = [
     { name: "Manager Admin", icon: <ShieldCheck size={16} /> },
@@ -51,6 +57,27 @@ const { data: clientsData, isLoading: isLoadingClients } = useClients(
     activeTab === "Clients"
 );
 
+const handleDelete = (id: string) => {
+  if (activeTab === "Clients") {
+    console.log("Deleting client with id: ", id);
+    window.confirm("Are you sure you want to delete this client?");
+    mutateClient(id);
+    return;
+  }
+
+  if (activeTab === "Agents") {
+    console.log("Deleting agent with id: ", id);
+    window.confirm("Are you sure you want to delete this agent?");
+    mutateAgent(id);
+    return;
+  }
+
+  if (activeTab === "Manager Admin") {
+    console.log("Deleting admin with id: ", id);
+    window.confirm("Are you sure you want to delete this admin?");
+    mutateAdmin(id);
+  }
+};
 
 if(isLoadingAdmins || isLoadingAgents || isLoadingClients){
   return (
@@ -122,9 +149,13 @@ if(isLoadingAdmins || isLoadingAgents || isLoadingClients){
       totalPages={adminsData?.totalPages || 0}
       totalElements={adminsData?.totalElements || 0}
       onPageChange={(newPage) => setPage(newPage)}
+      onDelete={handleDelete}
+
     />
      }
-     {activeTab === "Agents" && <AgentsList agents={agentsData?.content ?? []} />}
+     {activeTab === "Agents" && <AgentsList agents={agentsData?.content ?? []} 
+      onDelete={handleDelete}
+     />}
      
      {activeTab === "Clients" && <ClientsList 
       clients={clientsData?.content || []}
@@ -138,6 +169,7 @@ if(isLoadingAdmins || isLoadingAgents || isLoadingClients){
       
       // Update filters and reset page to 0
       onFilterChange={(newFilters) => setParams(prev => ({ ...prev, ...newFilters, page: 0 }))}
+      onDelete={handleDelete}
     />}
 
     
