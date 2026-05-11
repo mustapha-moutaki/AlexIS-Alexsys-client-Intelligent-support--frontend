@@ -35,5 +35,6 @@ function AgentPage({ id }: { id: string }) {
 function ClientPage({ id }: { id: string }) {
   const { data, isLoading } = useClientById(id);
   if (isLoading) return <SimpleSpinner />;
-  return <ClientEditForm user={data} />;
+  console.log("client page data",data);
+  return <ClientEditForm client={data} />;
 }
