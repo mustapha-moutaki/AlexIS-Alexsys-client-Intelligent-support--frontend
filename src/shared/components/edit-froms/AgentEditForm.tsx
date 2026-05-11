@@ -1,4 +1,3 @@
-// src/shared/components/edit-froms/AgentEditForm.tsx
 "use client";
 
 import React, { useRef, useState } from "react";
@@ -20,6 +19,8 @@ import {
   Settings,
   Trash2,
 } from "lucide-react";
+import { Button } from "@/src/components/ui/glass/button";
+import ButtonGoBack from "../ui/ButtonGoBack";
 
 interface Props {
   user: Agent;
@@ -74,10 +75,10 @@ export default function AgentEditForm({ user }: Props) {
       <form onSubmit={handleSubmit} className="w-full bg-white border border-gray-200 rounded-md shadow-sm">
         {/* Header */}
         <div className="border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-          <div className="text-sm font-medium text-gray-900 flex items-center gap-2">
-            <Briefcase className="w-4 h-4 text-blue-600" />
-            Edit Agent Profile
-          </div>
+          <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
+            <ButtonGoBack/>
+            <p>Edit Agent</p>
+            </div>
           <button
             type="submit"
             disabled={isPending}
