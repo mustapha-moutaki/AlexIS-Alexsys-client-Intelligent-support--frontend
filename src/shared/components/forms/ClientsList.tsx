@@ -14,6 +14,7 @@ interface ClientsListProps {
   // Filter Props
   filters: { isVip?: boolean; isActive?: boolean };
   onFilterChange: (newFilters: { isVip?: boolean; isActive?: boolean }) => void;
+  onDelete: (id: string) => void;
 }
 
 export default function ClientsList({
@@ -24,6 +25,7 @@ export default function ClientsList({
   onPageChange,
   filters,
   onFilterChange,
+  onDelete
 }: ClientsListProps) {
   const [selected, setSelected] = useState<number[]>([]);
   const router = useRouter();
@@ -59,7 +61,7 @@ export default function ClientsList({
             onChange={(e) => onFilterChange({ ...filters, isVip: e.target.value === "" ? undefined : e.target.value === "true" })}
           >
             <option value="">All Types</option>
-            <option value="true">💎 VIP Clients</option>
+            <option value="true">VIP Clients</option>
             <option value="false">Standard</option>
           </select>
 
@@ -169,7 +171,7 @@ export default function ClientsList({
                     <div className="flex justify-end gap-1 ">
                       <button className="p-1.5 rounded-md text-gray-400 text-indigo-600 hover:bg-indigo-50" title="View" onClick={()=> router.push(`/dashboard/users/${client.id}`)}><Eye size={16} /></button>
                       <button className="p-1.5 rounded-md text-gray-400 text-amber-600 hover:bg-amber-50" title="Edit"onClick={()=> router.push(`/dashboard/users/${client.id}/edit`)}><Pencil size={16} /></button>
-                      <button className="p-1.5 rounded-md text-gray-400 text-red-600 hover:bg-red-50" title="Delete"><Trash2 size={16} /></button>
+                      <button className="p-1.5 rounded-md text-gray-400 text-red-600 hover:bg-red-50" title="Delete" onClick={()=>onDelete(client.id.toString())}><Trash2 size={16} /></button>
                     </div>
                   </td>
                 </tr>
