@@ -57,3 +57,8 @@ export const updateUser = async (id: string, data: UserEditRequest) => {
 
   return res.data;
 };
+
+export const deleteUser = async(id:string)=>{
+  const res = await api.delete(`${USER_ENDPOINT}/${id}`);
+  return res.data
+}
