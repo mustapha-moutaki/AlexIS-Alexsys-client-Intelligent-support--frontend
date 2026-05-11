@@ -61,7 +61,7 @@ export const useClients = (params?: Params,enabled:boolean = true)=>{
     })
 }
 
-export const useUpdateClients = ()=>{
+export const useUpdateClient = ()=>{
     const queryClient = useQueryClient();
 
     return useMutation({
