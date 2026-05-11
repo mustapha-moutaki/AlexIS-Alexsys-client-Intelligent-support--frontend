@@ -14,6 +14,7 @@ import {
   Save,
   Loader2,
 } from "lucide-react";
+import ButtonGoBack from "../ui/ButtonGoBack";
 
 type Props = { user: User };
 
@@ -71,7 +72,10 @@ export default function AdminEditForm({ user }: Props) {
         className="w-full bg-white border border-gray-200 rounded-md"
       >
         <div className="border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-          <div className="text-sm font-medium text-gray-900">Edit Admin</div>
+          <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
+            <ButtonGoBack/>
+            <p>Edit Admin</p>
+            </div>
 
           <button
             type="submit"
