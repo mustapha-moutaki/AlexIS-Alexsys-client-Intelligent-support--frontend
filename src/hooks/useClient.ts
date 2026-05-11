@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createClient, getClientById, getClients, updateClient } from "../features/auth/services/client.service";
+import { createClient, deleteClient, getClientById, getClients, updateClient } from "../features/auth/services/client.service";
 import toast from "react-hot-toast";
 import { ClientEditRequest } from "../types/ClientEditRequest";
 
@@ -83,5 +83,27 @@ export const useUpdateClient = ()=>{
             const errorMessage = error?.response?.data?.message || "Failed to update client";
             toast.error(errorMessage);
         }
+    })
+}
+
+export const useDeleteClient = ()=>{
+    const queryCleint = useQueryClient();
+    return useMutation({
+        mutationFn: (id:string)=> deleteClient(id),
+
+        onMutate: () => {
+            toast.loading("Deleting client profile...");
+        },
+        onSuccess: () => {
+            toast.dismiss();
+            toast.success("Client deleted successfully");
+
+            //invalidate queries
+            queryCleint.invalidateQueries({ queryKey: ["clients"] });
+        },
+        onError: () => {
+            toast.dismiss();
+            toast.error("Failed to delete client");
+        }   
     })
 }
