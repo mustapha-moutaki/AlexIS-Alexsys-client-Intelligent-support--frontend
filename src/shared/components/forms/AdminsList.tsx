@@ -11,6 +11,7 @@ interface AdminsListProps {
   totalPages: number;
   totalElements: number;
   onPageChange: (page: number) => void;
+  onDelete: (id: string)=>void;
 }
 
 export default function AdminsList({ 
@@ -18,7 +19,8 @@ export default function AdminsList({
   currentPage, 
   totalPages, 
   totalElements, 
-  onPageChange 
+  onPageChange,
+  onDelete
 }: AdminsListProps) {
   const [selected, setSelected] = useState<User["id"][]>([]);
  const router = useRouter();
@@ -144,6 +146,7 @@ export default function AdminsList({
     <button 
       className="p-1.5 rounded-md text-gray-500 text-red-600 hover:bg-red-50 transition-colors" 
       title="Delete"
+      onClick={()=> onDelete(user.id.toString())}
     >
       <Trash2 size={16} />
     </button>
