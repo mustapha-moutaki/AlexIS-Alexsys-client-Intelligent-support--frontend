@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createAgent, getAgentById, getAgents, updateAgent } from "../features/auth/services/agent.service";
+import { createAgent, deleteAgent, getAgentById, getAgents, updateAgent } from "../features/auth/services/agent.service";
 import { AgentEditRequest } from "../types/AgentEditRequest";
 import toast from "react-hot-toast";
 
@@ -64,6 +64,23 @@ export const useUpdateAgent = ()=>{
             toast.dismiss();
             const errorMessage = error?.response?.data?.message || "Failed to update agent";
             toast.error(errorMessage);
+        }
+    })
+}
+
+export const useDeleteAgent = ()=>{
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (id: string)=> deleteAgent(id),
+
+        onSuccess:()=>{
+            toast.success("Agent deleted successfully");
+            queryClient.invalidateQueries({queryKey:["agents"]});
+        },
+
+        onError:()=>{
+            toast.error("Failed to delete agent");
         }
     })
 }
