@@ -3,7 +3,7 @@ import { ApiResponse } from "@/src/types/ApiResponse";
 import { CreateAdminRequest } from "@/src/types/CreateAdminRequest";
 import { User } from "@/src/types/User";
 import { UserEditRequest } from "@/src/types/UserEditRequest";
-import { updateUser } from "./user.service";
+import { deleteUser, updateUser } from "./user.service";
 
 
 
@@ -53,4 +53,8 @@ export const getAdmins = async (page = 0) => {
 
 export const updateAdmin = async (id: string, data: UserEditRequest) => {
     return await updateUser(id, data);
+}
+
+export const deleteAdmin = async(id:string)=>{
+    return await deleteUser(id);
 }
