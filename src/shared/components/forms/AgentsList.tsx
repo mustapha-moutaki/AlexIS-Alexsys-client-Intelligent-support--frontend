@@ -7,9 +7,10 @@ import { useRouter } from "next/navigation";
 
 interface AgentsListProps {
   agents: Agent[];
+  onDelete: (id: string) => void;
 }
 
-export default function AgentsList({ agents = [] }: AgentsListProps) {
+export default function AgentsList({ agents = [], onDelete }: AgentsListProps) {
     const router = useRouter();
   const [selected, setSelected] = useState<number[]>([]);
 
@@ -150,7 +151,8 @@ export default function AgentsList({ agents = [] }: AgentsListProps) {
                     <button className="p-1.5 rounded-md text-gray-400 text-orange-600 hover:bg-orange-50" title="Block">
                       <Ban size={16} />
                     </button>
-                    <button className="p-1.5 rounded-md text-gray-400 text-red-600 hover:bg-red-50" title="Delete">
+                    <button className="p-1.5 rounded-md text-gray-400 text-red-600 hover:bg-red-50" title="Delete" onClick={()=>onDelete(agent.id.toString())}>
+                        
                       <Trash2 size={16} />
                     </button>
                   </div>
