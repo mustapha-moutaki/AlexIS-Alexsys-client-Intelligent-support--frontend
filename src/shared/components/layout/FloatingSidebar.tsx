@@ -4,7 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutGrid, Users, BarChart3, Settings,
-  LogOut, ChevronRight
+  LogOut, ChevronRight,Tags 
 } from "lucide-react";
 import LogoAlexIs from "../ui/LogoAlexIs";
 import { useLogout } from "@/src/hooks/useAuth";
@@ -13,6 +13,7 @@ import toast from "react-hot-toast";
 const navItems = [
   { id: "dash",    label: "Dashboard",  icon: LayoutGrid, path: "/dashboard" },
   { id: "users",   label: "Users",      icon: Users,      path: "/dashboard/users" },
+{ id: "categories", label: "Categories", icon: Tags, path: "/dashboard/categories" },
   { id: "stats",   label: "Statistics", icon: BarChart3,  path: "/stats" },
   { id: "settings",label: "Settings",   icon: Settings,   path: "/settings" },
 ];
