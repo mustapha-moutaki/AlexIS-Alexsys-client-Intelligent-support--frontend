@@ -105,7 +105,7 @@ export default function Dashboard() {
         }}
       >
         {/* Left: search */}
-        <div
+        {/* <div
           style={{
             display: "flex",
             alignItems: "center",
@@ -130,7 +130,7 @@ export default function Dashboard() {
               width: "100%",
             }}
           />
-        </div>
+        </div> */}
 
         {/* Center: tab nav */}
         <SectionNavbar activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
