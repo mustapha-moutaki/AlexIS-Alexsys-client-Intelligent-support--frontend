@@ -7,6 +7,8 @@ import {
   LogOut, ChevronRight
 } from "lucide-react";
 import LogoAlexIs from "../ui/LogoAlexIs";
+import { useLogout } from "@/src/hooks/useAuth";
+import toast from "react-hot-toast";
 
 const navItems = [
   { id: "dash",    label: "Dashboard",  icon: LayoutGrid, path: "/dashboard" },
@@ -19,10 +21,18 @@ const BRAND = "#51C2DE";
 const BRAND_TINT = "rgba(81,194,222,0.09)";
 const BRAND_BORDER = "rgba(81,194,222,0.22)";
 
+
+
 export default function FloatingSidebar({ isExpanded, setIsExpanded }: any) {
   const router = useRouter();
   const pathname = usePathname();
-
+    // handle logout
+const {mutate, isPending, error}=useLogout();
+if(error){
+  toast.error(error.message);
+}else if(isPending){
+  toast.loading("Logging out...");
+}
   return (
     <aside
       className="fixed left-0 top-0 h-screen z-50 flex flex-col transition-all duration-300"
@@ -136,7 +146,9 @@ export default function FloatingSidebar({ isExpanded, setIsExpanded }: any) {
           style={{ height: 36, padding: "0 8px", width: "100%", color: "#EF4444" }}
           title={!isExpanded ? "Logout" : undefined}
         >
-          <span className="flex-shrink-0 flex items-center justify-center" style={{ width: 20 }}>
+          <span className="flex-shrink-0 flex items-center justify-center"
+           onClick={()=>mutate()}
+           style={{ width: 20 }}>
             <LogOut size={15} strokeWidth={1.7} />
           </span>
           <AnimatePresence>
