@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createTicket, getTickets } from "../features/auth/services/ticket-H-admin.service";
+import { createTicket, getTicketById, getTickets } from "../features/auth/services/ticket-H-admin.service";
 import toast from "react-hot-toast";
 
 
@@ -38,5 +38,30 @@ export const useCreateTicketByAdmin = ()=>{
             const errorMessage = error?.response?.data?.message || "Failed to create ticket";
             toast.error(errorMessage);
         }
+    })
+}
+
+// get the ticket details by id for admin
+export const useTicketByIdByAdmin = (id:number)=>{
+
+    return useQuery({
+        queryKey: ["ticket", id],
+        queryFn: ()=>getTicketById(id)
+    })
+}
+
+
+// foor now not used
+export const useCommentsByTicketId = (id:number)=>{
+    return useQuery({
+        queryKey: ["comments", id],
+        // queryFn: ()=>getCommentsByTicketId(id)
+    })
+}
+
+export const useAttachmentsByTicketId = (id:number)=>{
+    return useQuery({
+        queryKey: ["attachments", id],
+        // queryFn: ()=>getAttachmentsByTicketId(id)
     })
 }
