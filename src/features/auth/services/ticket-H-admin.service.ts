@@ -1,5 +1,6 @@
 import api from "@/src/lib/api"
 import { ApiResponse } from "@/src/types/ApiResponse"
+import { TicketDetailsResponse } from "@/src/types/TicketDetailsResponse";
 import { TicketFormData } from "@/src/types/TicketFormData";
 import { TicketResponse } from "@/src/types/TicketResponse"
 
@@ -25,7 +26,16 @@ export const getTickets = async (params : PaginationParams) => {
 }
 
 export const createTicket = async (data: TicketFormData) => {
-    
+
     const res = await api.post<ApiResponse<TicketResponse>>(TICKET_BASE_URL, data);
     return res.data.data;
+}
+
+export const getTicketById = async(id:number)=>{
+    try{
+        const res = await api.get<ApiResponse<TicketDetailsResponse>>(`${TICKET_BASE_URL}/${id}`);
+        return res.data.data;
+    }catch(error){
+        throw error;
+    }
 }
