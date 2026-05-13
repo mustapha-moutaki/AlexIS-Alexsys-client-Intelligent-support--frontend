@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Eye, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Search, Filter } from "lucide-react";
+import { Eye, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Search, Filter, Pencil } from "lucide-react";
 import { ApiResponse } from "@/src/types/ApiResponse";
 import { TicketResponse } from "@/src/types/TicketResponse";
 import SimpleSpinner from "@/components/ui/SimpleSpinner";
+import { useRouter } from "next/navigation";
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   OPEN:        { label: "Open",        className: "bg-emerald-50 text-emerald-700 border border-emerald-200" },
@@ -38,6 +39,8 @@ function truncate(text: string, maxChars = 60) {
   return text?.length > maxChars ? text.slice(0, maxChars).trimEnd() + "…" : text;
 }
 
+
+
 function Badge({ config }: { config: { label: string; className: string; dot?: string } }) {
   if (!config) return null;
   return (
@@ -59,6 +62,8 @@ interface TicketsListProps {
 }
 
 
+
+
 export function TicketsListForAdmin({ content, onViewTicket, page, setPage, pageSize, setPageSize, isLoading }: TicketsListProps) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -66,6 +71,8 @@ export function TicketsListForAdmin({ content, onViewTicket, page, setPage, page
   const [typeFilter, setTypeFilter] = useState<string>("ALL");
   const [sortKey, setSortKey] = useState<string>("id");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+
+  const router = useRouter();
 
   const filtered = useMemo(() => {
     // CRITICAL: Your API response stores the array in 'content' field of the response data
@@ -144,10 +151,16 @@ export function TicketsListForAdmin({ content, onViewTicket, page, setPage, page
                     <td className="px-4 py-3.5"><Badge config={STATUS_CONFIG[ticket.status]} /></td>
                     <td className="px-4 py-3.5"><Badge config={PRIORITY_CONFIG[ticket.priority]} /></td>
                     <td className="px-4 py-3.5"><Badge config={ISSUE_TYPE_CONFIG[ticket.issueType]} /></td>
-                    <td className="px-4 py-3.5 text-right">
-                      <button onClick={() => onViewTicket(ticket)} className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
+                    <td className=" flex justify-end gap-3 px-4 py-3.5 text-right">
+                      <button onClick={() => router.push(`/dashboard/admin/tickets/${ticket.id}`)} className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
                         <Eye className="w-4 h-4" />
                       </button>
+
+                      <button onClick={() => router.push(`/dashboard/admin/tickets/${ticket.id}/edit`)} className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-gray-500 hover:text-white transition-all shadow-sm">
+                        <Pencil className="w-4 h-4" />
+                      </button>
+
+                
                     </td>
                   </tr>
                 ))
