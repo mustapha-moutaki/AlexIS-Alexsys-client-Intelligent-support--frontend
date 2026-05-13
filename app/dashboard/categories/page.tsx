@@ -3,6 +3,7 @@
 import ButtonGoBack from "@/src/shared/components/ui/ButtonGoBack";
 import CategoriesList from "@/src/shared/components/forms/CategoriesList";
 import { useCategories } from "@/src/hooks/useCategory";
+import Breadcrumbs from "@/src/shared/components/ui/Breadcrumbs";
 
 export default function CategoriesPage() {
     const { data: categories, isLoading, isError, error } = useCategories();
@@ -37,7 +38,14 @@ export default function CategoriesPage() {
 
     return (
         <main className="max-w-6xl mx-auto p-6 flex flex-col gap-6">
+             <Breadcrumbs
+                       items={[
+                         { name: "Dashboard", route: "/" },
+                         { name: "categories", route: "/dashboard/categories" },
+                       ]}
+                     />
             <div className="flex items-center justify-between">
+               
                 <div className="flex items-center gap-4">
                     <ButtonGoBack />
                     <div>
