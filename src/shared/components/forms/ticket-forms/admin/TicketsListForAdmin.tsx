@@ -60,12 +60,13 @@ interface TicketsListProps {
   pageSize: number;
   setPageSize: (s: number) => void;
   isLoading: boolean;
+  onDeleteTicketByAdmin: (id:string)=>void;
 }
 
 
 
 
-export function TicketsListForAdmin({ content, onViewTicket, page, setPage, pageSize, setPageSize, isLoading }: TicketsListProps) {
+export function TicketsListForAdmin({ content, onViewTicket, page, setPage, pageSize, setPageSize, isLoading, onDeleteTicketByAdmin }: TicketsListProps) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [priorityFilter, setPriorityFilter] = useState<string>("ALL");
@@ -161,7 +162,7 @@ export function TicketsListForAdmin({ content, onViewTicket, page, setPage, page
                         <Pencil className="w-4 h-4" />
                       </button>
 
-                       <button onClick={() => toast.error("Functionnality to delete tickets will be available soon ")} className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-red-500 hover:text-white transition-all shadow-sm">
+                       <button onClick={()=> onDeleteTicketByAdmin(ticket.id.toString())} className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-red-500 hover:text-white transition-all shadow-sm">
                         <Trash className="w-4 h-4" />
                       </button>
                 
