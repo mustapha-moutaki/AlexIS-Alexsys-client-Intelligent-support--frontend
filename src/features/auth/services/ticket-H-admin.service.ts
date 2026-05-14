@@ -86,3 +86,37 @@ export const updateTicketAssignedToByAdmin = async(id: string, assignedToId:stri
         throw error;
     }
 }
+
+// now not used by anyone and nowhere, because when we need detailed ticket we call by id
+export const getAllTicketsDetailed = async()=>{
+    try{
+        const res = await api.get<ApiResponse<TicketResponse[]>>(`${TICKET_BASE_URL}/details`);
+        return res.data.data;
+    }catch(error){
+        throw error;
+    }
+}
+
+
+// now not used but will be used later when we create dashboard for agents
+// this is used in assigned tickets page for agents
+export const getTicketByIdSummary = async(id:string)=>{
+    try{
+        const res = await api.get<ApiResponse<TicketResponse>>(`${TICKET_BASE_URL}/${id}/summary`);
+        return res.data.data;
+    }catch(error){
+        throw error;
+    }
+}
+
+
+// but not used for now, but will be used later
+// for admin to see all tickets in one page, without pagination and only id, title, status, priority, assignedTo, createdAt
+export const getAllTicketsSummary= async()=>{
+    try{
+        const res = await api.get<ApiResponse<TicketResponse[]>>(`${TICKET_BASE_URL}/summary`);
+        return res.data.data;
+    }catch(error){
+        throw error;
+    }
+}
