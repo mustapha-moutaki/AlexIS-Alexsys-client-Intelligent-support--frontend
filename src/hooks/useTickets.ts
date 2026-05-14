@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createTicket, deleteTicketByAdmin, getTicketById, getTickets, updateTicketByAdmin, updateTicketPriorityByAdmin, updateTicketStatusByAdmin } from "../features/auth/services/ticket-H-admin.service";
+import { createTicket, deleteTicketByAdmin, getTicketById, getTickets, updateTicketAssignedToByAdmin, updateTicketByAdmin, updateTicketPriorityByAdmin, updateTicketStatusByAdmin } from "../features/auth/services/ticket-H-admin.service";
 import toast from "react-hot-toast";
 
 
@@ -141,6 +141,29 @@ export const useUpdateTicketPriorityByAdmin = () => {
     });
 };
 
+// update the agent that assigned to ticket
+export const useUpdateTicketAssignedToByAdmin = () => {
+    const queryClient = useQueryClient();
+    
+    return useMutation({
+        mutationFn: ({id, assignedToId}: {id: string, assignedToId: string}) => 
+            updateTicketAssignedToByAdmin(id, assignedToId),
+            
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["tickets"] });
+            toast.success("Assigned agent updated successfully");
+        },
+        
+        onError: (error: any) => {
+            const errorMessage =
+                error?.response?.data?.message ||
+                "Failed to update assigned agent";
+            
+            console.log(errorMessage);
+            toast.error(errorMessage);
+        }
+    });
+};
 
 
 
