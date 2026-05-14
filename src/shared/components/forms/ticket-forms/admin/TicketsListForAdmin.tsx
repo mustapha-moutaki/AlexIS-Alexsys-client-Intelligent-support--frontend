@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Eye, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Search, Filter, Pencil } from "lucide-react";
+import { Eye, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Search, Filter, Pencil, Trash } from "lucide-react";
 import { ApiResponse } from "@/src/types/ApiResponse";
 import { TicketResponse } from "@/src/types/TicketResponse";
 import SimpleSpinner from "@/components/ui/SimpleSpinner";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   OPEN:        { label: "Open",        className: "bg-emerald-50 text-emerald-700 border border-emerald-200" },
@@ -160,6 +161,9 @@ export function TicketsListForAdmin({ content, onViewTicket, page, setPage, page
                         <Pencil className="w-4 h-4" />
                       </button>
 
+                       <button onClick={() => toast.error("Functionnality to delete tickets will be available soon ")} className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-red-500 hover:text-white transition-all shadow-sm">
+                        <Trash className="w-4 h-4" />
+                      </button>
                 
                     </td>
                   </tr>
