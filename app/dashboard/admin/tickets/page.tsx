@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Ticket, AlertCircle, CheckCircle2, Clock, AlertTriangle,
   Plus, RefreshCw, Settings2, BarChart3, Users, TrendingUp, X
 } from "lucide-react";
 import { TicketResponse } from "@/src/types/TicketResponse";
 import TicketsListForAdmin from "@/src/shared/components/forms/ticket-forms/admin/TicketsListForAdmin";
-import { useTickets } from "@/src/hooks/useTickets";
+import { useDeleteTicketByAdmin, useTickets } from "@/src/hooks/useTickets";
 import ButtonGoBack from "@/src/shared/components/ui/ButtonGoBack";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 // ... StatCard remains exactly the same ...
 function StatCard({
@@ -44,6 +45,20 @@ export default function AdminTicketsPage() {
     size: pageSize 
   });
 
+  const {mutate:deleteMutation, isPending:deleteIsPending, error:deleteError, isSuccess:deleteIsSuccess} = useDeleteTicketByAdmin();
+
+  const handleDeleteTicketByAdmin = (id:string)=>{
+    deleteMutation({id});
+  }
+
+  useEffect(() => {
+    if(deleteIsSuccess){
+      toast.success("Ticket deleted successfully");
+    }
+    if(deleteError){
+      toast.error("Failed to delete ticket");
+    }
+  }, [deleteIsSuccess, deleteError]);
   return (
     <div className="min-h-screen bg-slate-100 font-sans">
       
@@ -86,6 +101,7 @@ export default function AdminTicketsPage() {
             pageSize={pageSize}
             setPageSize={setPageSize}
             isLoading={isLoading}
+            onDeleteTicketByAdmin= {handleDeleteTicketByAdmin}
           />
         </div>
       </main>
