@@ -37,7 +37,10 @@ export default function AgentDetailsModal({
             <p className="text-red-500 text-sm">Agent not found</p>
           ) : (
             <div className="grid grid-cols-2 gap-4 text-sm">
-
+              <div className="">
+                <img className="rounded-full w-20 h-20" src={agent.profilePicture} alt="" />
+              </div>
+              
               <Field label="Full Name" value={`${agent.firstName} ${agent.lastName}`} />
               <Field label="Username" value={agent.username} />
               <Field label="Email" value={agent.email} />
