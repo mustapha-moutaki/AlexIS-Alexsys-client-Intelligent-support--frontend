@@ -38,7 +38,14 @@ export default function AgentDetailsModal({
           ) : (
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="">
-                <img className="rounded-full w-20 h-20" src={agent.profilePicture} alt="" />
+                {
+                  agent.profilePicture ? 
+                  <img className="rounded-full w-20 h-20" src={agent.profilePicture} alt="profile picture" />
+                  : 
+                  <div className="rounded-full w-20 h-20 flex items-center justify-center">
+                    <span className="text-4xl">{agent.firstName.charAt(0)}</span>
+                  </div>
+                }
               </div>
               
               <Field label="Full Name" value={`${agent.firstName} ${agent.lastName}`} />
