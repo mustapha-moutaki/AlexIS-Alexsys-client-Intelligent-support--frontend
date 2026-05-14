@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createTicket, deleteTicketByAdmin, getTicketById, getTickets, updateTicketByAdmin } from "../features/auth/services/ticket-H-admin.service";
+import { createTicket, deleteTicketByAdmin, getTicketById, getTickets, updateTicketByAdmin, updateTicketPriorityByAdmin, updateTicketStatusByAdmin } from "../features/auth/services/ticket-H-admin.service";
 import toast from "react-hot-toast";
 
 
@@ -91,6 +91,58 @@ export const useUpdateTicketByAdmin = ()=>{
         }
     })
 }
+
+
+// update ticket status by admin
+export const useUpdateTicketStatusByAdmin = () => {
+    const queryClient = useQueryClient();
+    
+    return useMutation({
+        mutationFn: ({id, status}: {id: string, status: string}) => 
+            updateTicketStatusByAdmin(id, status),
+            
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["tickets"] });
+            toast.success("Status updated successfully");
+        },
+        
+        onError: (error: any) => {
+            const errorMessage =
+                error?.response?.data?.message ||
+                "Failed to update status";
+            
+            console.log(errorMessage);
+            toast.error(errorMessage);
+        }
+    });
+};
+
+// update ticket priority by admin
+export const useUpdateTicketPriorityByAdmin = () => {
+    const queryClient = useQueryClient();
+    
+    return useMutation({
+        mutationFn: ({id, priority}: {id: string, priority: string}) => 
+            updateTicketPriorityByAdmin(id, priority),
+            
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["tickets"] });
+            toast.success("Priority updated successfully");
+        },
+        
+        onError: (error: any) => {
+            const errorMessage =
+                error?.response?.data?.message ||
+                "Failed to update priority";
+            
+            console.log(errorMessage);
+            toast.error(errorMessage);
+        }
+    });
+};
+
+
+
 
 // foor now not used
 export const useCommentsByTicketId = (id:number)=>{
