@@ -77,3 +77,12 @@ export const updateTicketPriorityByAdmin = async(id: string, priority:string)=>{
         throw error;
     }
 }
+
+export const updateTicketAssignedToByAdmin = async(id: string, assignedToId:string)=>{
+    try{
+        const res = await api.patch<ApiResponse<TicketResponse>>(`${TICKET_BASE_URL}/${id}/assign?agentId=${assignedToId}`);
+        return res.data.data;
+    }catch(error){
+        throw error;
+    }
+}
