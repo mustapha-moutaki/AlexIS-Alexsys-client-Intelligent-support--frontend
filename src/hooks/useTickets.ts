@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createTicket, getTicketById, getTickets } from "../features/auth/services/ticket-H-admin.service";
+import { createTicket, getTicketById, getTickets, updateTicketByAdmin } from "../features/auth/services/ticket-H-admin.service";
 import toast from "react-hot-toast";
 
 
@@ -50,6 +50,22 @@ export const useTicketByIdByAdmin = (id:number)=>{
     })
 }
 
+
+export const useUpdateTicketByAdmin = ()=>{
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({id, ticket}:{id:any, ticket:any})=> updateTicketByAdmin(id, ticket),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["tickets"] });
+            toast.success("Ticket updated successfully");
+        },
+        onError: (error:any)=>{
+            const errorMessage = error?.response?.data?.message || "Failed to update ticket";
+            toast.error(errorMessage);
+        }
+    })
+}
 
 // foor now not used
 export const useCommentsByTicketId = (id:number)=>{
