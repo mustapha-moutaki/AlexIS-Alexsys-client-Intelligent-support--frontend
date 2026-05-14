@@ -48,3 +48,12 @@ export const updateTicketByAdmin = async (id: string, data: any) => {
         throw error;
     }
 }
+
+export const deleteTicketByAdmin = async (id: string) => {
+    try{
+        const res = await api.delete<ApiResponse<TicketResponse>>(`${TICKET_BASE_URL}/${id}`);
+        return res.data.data;
+    }catch(error){
+        throw error;
+    }
+}
