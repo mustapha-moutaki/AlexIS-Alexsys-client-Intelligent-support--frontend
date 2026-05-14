@@ -64,12 +64,13 @@ interface TicketsListProps {
   onOpenStatusModal: (ticketId:string, status:string)=>void;
   onOpenPriorityModal: (ticketId:string, priority:string)=>void;
   onOpenAgentModal: (assignedToId: string) => void;
+  onOpenUpdateAgentModal: (ticketId:string, assignedToId:string)=>void;
 }
 
 
 
 
-export function TicketsListForAdmin({ content, onViewTicket, page, setPage, pageSize, setPageSize, isLoading, onDeleteTicketByAdmin,onOpenStatusModal,onOpenPriorityModal,onOpenAgentModal }: TicketsListProps) {
+export function TicketsListForAdmin({ content, onViewTicket, page, setPage, pageSize, setPageSize, isLoading, onDeleteTicketByAdmin,onOpenStatusModal,onOpenPriorityModal,onOpenAgentModal, onOpenUpdateAgentModal }: TicketsListProps) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [priorityFilter, setPriorityFilter] = useState<string>("ALL");
@@ -219,21 +220,28 @@ export function TicketsListForAdmin({ content, onViewTicket, page, setPage, page
                 </div>
               </td>
 
-{/* assigned to */}
-              <td className="px-4 py-3.5 align-middle">
-  <div className="flex items-center justify-center">
-    {ticket.assignedToId ? (
-      <button
-        className="px-2 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-medium hover:bg-slate-200"
-        onClick={() => onOpenAgentModal(ticket.assignedToId.toString())}
-      >
-        View Agent
-      </button>
-    ) : (
-      <span className="text-xs text-slate-400">Not assigned</span>
-    )}
-  </div>
-</td>
+            {/* assigned to */}
+                          <td className="px-4 py-3.5 align-middle">
+              <div className="flex items-center justify-center">
+                {ticket.assignedToId ? (
+                  <button
+                    className="px-2 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-medium hover:bg-slate-200"
+                    onClick={() => onOpenAgentModal(ticket.assignedToId.toString())}
+                  >
+                    View Agent
+                  </button>
+                ) : (
+                  <span className="text-xs text-slate-400">Not assigned</span>
+                )}
+                <PencilIcon
+                  size={14}
+                  className="text-slate-400 cursor-pointer hover:text-blue-600"
+                  onClick={() =>
+                    onOpenUpdateAgentModal(ticket.id.toString(), ticket.assignedToId?.toString())
+                  }
+                />
+              </div>
+            </td>
 
               {/* ACTIONS */}
               <td className="px-4 py-3.5 align-middle">
