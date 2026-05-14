@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createTicket, getTicketById, getTickets, updateTicketByAdmin } from "../features/auth/services/ticket-H-admin.service";
+import { createTicket, deleteTicketByAdmin, getTicketById, getTickets, updateTicketByAdmin } from "../features/auth/services/ticket-H-admin.service";
 import toast from "react-hot-toast";
 
 
@@ -50,6 +50,31 @@ export const useTicketByIdByAdmin = (id:number)=>{
     })
 }
 
+
+
+// delete ticket by admin
+export const useDeleteTicketByAdmin = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id }: { id: string }) =>
+      deleteTicketByAdmin(id),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["tickets"],
+      });
+    },
+
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        "Failed to delete ticket";
+
+      console.log(errorMessage);
+    },
+  });
+};
 
 export const useUpdateTicketByAdmin = ()=>{
     const queryClient = useQueryClient();
