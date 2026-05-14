@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Eye, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Search, Filter, Pencil, Trash } from "lucide-react";
+import { Eye, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Search, Filter, Pencil, Trash, RefreshCw, PencilIcon } from "lucide-react";
 import { ApiResponse } from "@/src/types/ApiResponse";
 import { TicketResponse } from "@/src/types/TicketResponse";
 import SimpleSpinner from "@/components/ui/SimpleSpinner";
@@ -61,12 +61,15 @@ interface TicketsListProps {
   setPageSize: (s: number) => void;
   isLoading: boolean;
   onDeleteTicketByAdmin: (id:string)=>void;
+  onOpenStatusModal: (ticketId:string, status:string)=>void;
+  onOpenPriorityModal: (ticketId:string, priority:string)=>void;
+  onOpenAgentModal: (assignedToId: string) => void;
 }
 
 
 
 
-export function TicketsListForAdmin({ content, onViewTicket, page, setPage, pageSize, setPageSize, isLoading, onDeleteTicketByAdmin }: TicketsListProps) {
+export function TicketsListForAdmin({ content, onViewTicket, page, setPage, pageSize, setPageSize, isLoading, onDeleteTicketByAdmin,onOpenStatusModal,onOpenPriorityModal,onOpenAgentModal }: TicketsListProps) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [priorityFilter, setPriorityFilter] = useState<string>("ALL");
@@ -92,6 +95,10 @@ export function TicketsListForAdmin({ content, onViewTicket, page, setPage, page
   }, [content, search, statusFilter, priorityFilter, typeFilter]);
 
   const totalPages = content?.totalPages || 1;
+
+
+
+
 
   return (
     <div className="flex flex-col gap-4">
@@ -123,72 +130,190 @@ export function TicketsListForAdmin({ content, onViewTicket, page, setPage, page
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-200">
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">#ID</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Title & Description</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Status</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Priority</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Type</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {isLoading ? (
-                <tr><td colSpan={6} className="py-16 text-center text-slate-400"><SimpleSpinner/></td></tr>
-              ) :
-              filtered.length === 0 ? (
-                <tr><td colSpan={6} className="py-16 text-center text-slate-400">No tickets found.</td></tr>
-              ) :  (
-                filtered.map((ticket: TicketResponse, idx: number) => (
-                  <tr key={ticket.id} className={`hover:bg-indigo-50/40 ${idx % 2 === 0 ? "bg-white" : "bg-slate-50/40"}`}>
-                    <td className="px-4 py-3.5 font-mono text-xs text-slate-400">#{ticket.id}</td>
-                    <td className="px-4 py-3.5">
-                      <p className="font-medium text-slate-800 mb-0.5">{ticket.title}</p>
-                      <p className="text-xs text-slate-400">{truncate(ticket.description)}</p>
-                    </td>
-                    <td className="px-4 py-3.5"><Badge config={STATUS_CONFIG[ticket.status]} /></td>
-                    <td className="px-4 py-3.5"><Badge config={PRIORITY_CONFIG[ticket.priority]} /></td>
-                    <td className="px-4 py-3.5"><Badge config={ISSUE_TYPE_CONFIG[ticket.issueType]} /></td>
-                    <td className=" flex justify-end gap-3 px-4 py-3.5 text-right">
-                      <button onClick={() => router.push(`/dashboard/admin/tickets/${ticket.id}`)} className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
-                        <Eye className="w-4 h-4" />
-                      </button>
+     <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm">
+  <div className="overflow-x-auto">
+    <table className="w-full text-sm">
 
-                      <button onClick={() => router.push(`/dashboard/admin/tickets/${ticket.id}/edit`)} className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-gray-500 hover:text-white transition-all shadow-sm">
-                        <Pencil className="w-4 h-4" />
-                      </button>
+      {/* HEADER */}
+      <thead>
+        <tr className="bg-slate-50 border-b border-slate-200 text-center">
+          <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase">#ID</th>
+          <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Title & Description</th>
+          <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Status</th>
+          <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Priority</th>
+          <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Type</th>
+          <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Assigned To</th>
+          <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Action</th>
+        </tr>
+      </thead>
 
-                       <button onClick={()=> onDeleteTicketByAdmin(ticket.id.toString())} className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-red-500 hover:text-white transition-all shadow-sm">
-                        <Trash className="w-4 h-4" />
-                      </button>
-                
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+      {/* BODY */}
+      <tbody className="divide-y divide-slate-100 text-center">
 
-        {/* Pagination */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-slate-50">
-          <div className="flex items-center gap-2 text-sm text-slate-500">
-            <span>Rows:</span>
-            <select value={pageSize} onChange={e => { setPageSize(Number(e.target.value)); setPage(1); }} className="border border-slate-200 rounded px-1 py-1">
-              {[5, 10, 15, 20].map(s => <option key={s} value={s}>{s}</option>)}
-            </select>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-500">Page {page} of {totalPages}</span>
-            <button onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1} className="p-1 border rounded bg-white disabled:opacity-40"><ChevronLeft className="w-4 h-4" /></button>
-            <button onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages} className="p-1 border rounded bg-white disabled:opacity-40"><ChevronRight className="w-4 h-4" /></button>
-          </div>
-        </div>
-      </div>
+        {isLoading ? (
+          <tr>
+            <td colSpan={6} className="py-16 text-slate-400">
+              <SimpleSpinner />
+            </td>
+          </tr>
+        ) : filtered.length === 0 ? (
+          <tr>
+            <td colSpan={6} className="py-16 text-slate-400">
+              No tickets found.
+            </td>
+          </tr>
+        ) : (
+          filtered.map((ticket: TicketResponse, idx: number) => (
+            <tr
+              key={ticket.id}
+              className={`hover:bg-indigo-50/40 ${idx % 2 === 0 ? "bg-white" : "bg-slate-50/40"}`}
+            >
+
+              {/* ID */}
+              <td className="px-4 py-3.5 font-mono text-xs text-slate-400 align-middle">
+                #{ticket.id}
+              </td>
+
+              {/* TITLE */}
+              <td className="px-4 py-3.5 text-left align-middle">
+                <p className="font-medium text-slate-800 leading-tight">
+                  {ticket.title}
+                </p>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {truncate(ticket.description)}
+                </p>
+              </td>
+
+              {/* STATUS */}
+              <td className="px-4 py-3.5 align-middle">
+                <div className="flex items-center justify-center gap-2">
+                  <Badge config={STATUS_CONFIG[ticket.status]} />
+                  <PencilIcon
+                    size={14}
+                    className="text-slate-400 cursor-pointer hover:text-blue-600"
+                    onClick={() =>
+                      onOpenStatusModal(ticket.id.toString(), ticket.status)
+                    }
+                  />
+                </div>
+              </td>
+
+              {/* PRIORITY */}
+              <td className="px-4 py-3.5 align-middle">
+                <div className="flex items-center justify-center gap-2">
+                  <Badge config={PRIORITY_CONFIG[ticket.priority]} />
+                  <PencilIcon
+                    size={14}
+                    className="text-slate-400 cursor-pointer hover:text-blue-600"
+                    onClick={() =>
+                      onOpenPriorityModal(ticket.id.toString(), ticket.priority)
+                    }
+                  />
+                </div>
+              </td>
+
+              {/* TYPE */}
+              <td className="px-4 py-3.5 align-middle">
+                <div className="flex justify-center">
+                  <Badge config={ISSUE_TYPE_CONFIG[ticket.issueType]} />
+                </div>
+              </td>
+
+{/* assigned to */}
+              <td className="px-4 py-3.5 align-middle">
+  <div className="flex items-center justify-center">
+    {ticket.assignedToId ? (
+      <button
+        className="px-2 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-medium hover:bg-slate-200"
+        onClick={() => onOpenAgentModal(ticket.assignedToId.toString())}
+      >
+        View Agent
+      </button>
+    ) : (
+      <span className="text-xs text-slate-400">Not assigned</span>
+    )}
+  </div>
+</td>
+
+              {/* ACTIONS */}
+              <td className="px-4 py-3.5 align-middle">
+                <div className="flex items-center justify-center gap-2">
+                  
+                  <button
+                    onClick={() => router.push(`/dashboard/admin/tickets/${ticket.id}`)}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-indigo-600 hover:text-white transition-all"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    onClick={() => router.push(`/dashboard/admin/tickets/${ticket.id}/edit`)}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-gray-500 hover:text-white transition-all"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    onClick={() => onDeleteTicketByAdmin(ticket.id.toString())}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-red-500 hover:text-white transition-all"
+                  >
+                    <Trash className="w-4 h-4" />
+                  </button>
+
+                </div>
+              </td>
+            </tr>
+          ))
+        )}
+      </tbody>
+    </table>
+  </div>
+
+  {/* PAGINATION */}
+  <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-slate-50">
+
+    <div className="flex items-center gap-2 text-sm text-slate-500">
+      <span>Rows:</span>
+      <select
+        value={pageSize}
+        onChange={e => {
+          setPageSize(Number(e.target.value));
+          setPage(1);
+        }}
+        className="border border-slate-200 rounded px-2 py-1"
+      >
+        {[5, 10, 15, 20].map(s => (
+          <option key={s} value={s}>
+            {s}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    <div className="flex items-center gap-2">
+      <span className="text-sm text-slate-500">
+        Page {page} of {totalPages}
+      </span>
+
+      <button
+        onClick={() => setPage(Math.max(1, page - 1))}
+        disabled={page === 1}
+        className="p-1 border rounded bg-white disabled:opacity-40"
+      >
+        <ChevronLeft className="w-4 h-4" />
+      </button>
+
+      <button
+        onClick={() => setPage(Math.min(totalPages, page + 1))}
+        disabled={page === totalPages}
+        className="p-1 border rounded bg-white disabled:opacity-40"
+      >
+        <ChevronRight className="w-4 h-4" />
+      </button>
+    </div>
+
+  </div>
+</div>
     </div>
   );
 }
