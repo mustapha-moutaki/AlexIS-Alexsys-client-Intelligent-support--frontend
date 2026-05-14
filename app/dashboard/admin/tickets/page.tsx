@@ -7,11 +7,13 @@ import {
 } from "lucide-react";
 import { TicketResponse } from "@/src/types/TicketResponse";
 import TicketsListForAdmin from "@/src/shared/components/forms/ticket-forms/admin/TicketsListForAdmin";
-import { useDeleteTicketByAdmin, useTickets } from "@/src/hooks/useTickets";
+import { useDeleteTicketByAdmin, useTickets, useUpdateTicketPriorityByAdmin, useUpdateTicketStatusByAdmin } from "@/src/hooks/useTickets";
 import ButtonGoBack from "@/src/shared/components/ui/ButtonGoBack";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-
+import { priorities } from "@/src/shared/constants/priority";
+import { useAgentById } from "@/src/hooks/useAgent";
+import AgentDetailsModal from "@/src/shared/components/modals/AgentDetailsModal";
 // ... StatCard remains exactly the same ...
 function StatCard({
   icon: Icon, label, value, sub, color,
@@ -45,8 +47,44 @@ export default function AdminTicketsPage() {
     size: pageSize 
   });
 
-  const {mutate:deleteMutation, isPending:deleteIsPending, error:deleteError, isSuccess:deleteIsSuccess} = useDeleteTicketByAdmin();
+  const [statusUpdateData, setStatusUpdateData] = useState<{id: string, status: string} | null>(null);
+  const { mutate: updateStatusMutation, isPending: isUpdatingStatus } = useUpdateTicketStatusByAdmin();
+  const [agentDetailsId, setAgentDetailsId] = useState<string | null>(null);
 
+    const handleOpenStatusModal = (ticketId: string, currentStatus: string) => {
+    setStatusUpdateData({ id: ticketId, status: currentStatus });
+  };
+
+
+  const [priorityUpdateData, setPriorityUpdateData] = useState<{id: string, priority: string} | null>(null);
+
+
+  const handleOpenPriorityModal = (ticketId: string, currentPriority: string)=>{
+    setPriorityUpdateData({ id: ticketId, priority: currentPriority });
+  }
+  
+
+  const handleUpdateStatus = (newStatus: string) => {
+    if (statusUpdateData) {
+      updateStatusMutation({ id: statusUpdateData.id, status: newStatus }, {
+        onSuccess: () => {
+          toast.success("Status updated successfully");
+          setStatusUpdateData(null); // Close modal
+        },
+        onError: () => {
+          toast.error("Failed to update status");
+        }
+      });
+    }
+  };
+
+const handleOpenAgentModal = (agentId: string) => {
+  setAgentDetailsId(agentId);
+};
+
+  const {mutate:deleteMutation, isPending:deleteIsPending, error:deleteError, isSuccess:deleteIsSuccess} = useDeleteTicketByAdmin();
+  const { mutate: updatePriorityMutation, isPending: isUpdatingPriority } = useUpdateTicketPriorityByAdmin();
+  const {data:agents, isPending:agentsIsPending, error:agentsError} = useAgentById(agentDetailsId || "");
   const handleDeleteTicketByAdmin = (id:string)=>{
     deleteMutation({id});
   }
@@ -59,6 +97,27 @@ export default function AdminTicketsPage() {
       toast.error("Failed to delete ticket");
     }
   }, [deleteIsSuccess, deleteError]);
+
+ 
+const handleUpdatePriority = (newPriority: string) => {
+  if (priorityUpdateData) {
+    // replace with your API later
+    console.log("update priority:", priorityUpdateData.id, newPriority);
+
+    updatePriorityMutation({id: priorityUpdateData.id, priority: newPriority}, {
+      onSuccess: () => {
+        setPriorityUpdateData(null);
+      }
+    });
+  }
+};
+
+const [assignedUpdateData, setAssignedUpdateData] = useState<{id: string, assignedToId: string} | null>(null);
+const handleOpenAssignedModal = (ticketId: string, currentAssignedToId: string)=>{
+
+  setAssignedUpdateData({ id: ticketId, assignedToId: currentAssignedToId });
+}
+
   return (
     <div className="min-h-screen bg-slate-100 font-sans">
       
@@ -102,13 +161,157 @@ export default function AdminTicketsPage() {
             setPageSize={setPageSize}
             isLoading={isLoading}
             onDeleteTicketByAdmin= {handleDeleteTicketByAdmin}
+            onOpenStatusModal = {handleOpenStatusModal}
+            onOpenPriorityModal = {handleOpenPriorityModal}
+            onOpenAgentModal={handleOpenAgentModal} 
           />
+
         </div>
       </main>
 
       {selectedTicket && (
         <TicketDetailModal ticket={selectedTicket} onClose={() => setSelectedTicket(null)} />
       )}
+
+
+      {statusUpdateData && (
+        <StatusUpdateModal 
+          currentStatus={statusUpdateData.status}
+          onClose={() => setStatusUpdateData(null)}
+          onConfirm={handleUpdateStatus}
+          isLoading={isUpdatingStatus}
+        />
+      )}
+
+      {priorityUpdateData && (
+      <PriorityUpdateModal
+        currentPriority={priorityUpdateData.priority}
+        onClose={() => setPriorityUpdateData(null)}
+        onConfirm={handleUpdatePriority}
+        isLoading={false}
+      />
+    )}
+
+    {agentDetailsId && (
+  <AgentDetailsModal
+    agentId={agentDetailsId}
+    onClose={() => setAgentDetailsId(null)}
+  />
+)}
+    </div>
+  );
+}
+function StatusUpdateModal({ currentStatus, onClose, onConfirm, isLoading }: any) {
+  const [selected, setSelected] = useState(currentStatus);
+  const statuses = ["OPEN", "ASSIGNED", "IN_PROGRESS", "RESOLVED", "CLOSED", "REOPEN"];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+          <h3 className="text-lg font-bold text-slate-800">Update Ticket Status</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><X size={20}/></button>
+        </div>
+        <div className="p-6 space-y-4">
+          <div className="grid grid-cols-1 gap-2">
+            {statuses.map((status) => (
+              <button
+                key={status}
+                onClick={() => setSelected(status)}
+                className={`flex items-center justify-between px-4 py-3 rounded-xl border-2 transition-all ${
+                  selected === status 
+                  ? "border-indigo-600 bg-indigo-50 text-indigo-700" 
+                  : "border-slate-100 hover:border-slate-200 text-slate-600"
+                }`}
+              >
+                <span className="font-semibold text-sm">{status.replace('_', ' ')}</span>
+                {selected === status && <CheckCircle2 className="w-5 h-5 text-indigo-600" />}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="p-6 bg-slate-50 flex gap-3">
+          <button 
+            disabled={isLoading}
+            onClick={onClose} 
+            className="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 transition"
+          >
+            Cancel
+          </button>
+          <button 
+            disabled={isLoading || selected === currentStatus}
+            onClick={() => onConfirm(selected)}
+            className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 disabled:opacity-50 transition shadow-md shadow-indigo-100"
+          >
+            {isLoading ? "Updating..." : "Update Status"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PriorityUpdateModal({
+  currentPriority,
+  onClose,
+  onConfirm,
+  isLoading,
+}: any) {
+  const [selected, setSelected] = useState(currentPriority);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        
+        {/* HEADER */}
+        <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+          <h3 className="text-lg font-bold text-slate-800">
+            Update Ticket Priority
+          </h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* BODY */}
+        <div className="p-6 space-y-3">
+          {priorities.map((p: any) => (
+            <button
+              key={p.value}
+              onClick={() => setSelected(p.value)}
+              className={`flex items-center justify-between px-4 py-3 rounded-xl border-2 transition-all w-full ${
+                selected === p.value
+                  ? "border-indigo-600 bg-indigo-50 text-indigo-700"
+                  : "border-slate-100 hover:border-slate-200 text-slate-600"
+              }`}
+            >
+              <span className="font-semibold text-sm">{p.label}</span>
+
+              {selected === p.value && (
+                <CheckCircle2 className="w-5 h-5 text-indigo-600" />
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* FOOTER */}
+        <div className="p-6 bg-slate-50 flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 transition"
+          >
+            Cancel
+          </button>
+
+          <button
+            disabled={isLoading}
+            onClick={() => onConfirm(selected)}
+            className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 disabled:opacity-50 transition"
+          >
+            {isLoading ? "Updating..." : "Update Priority"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
