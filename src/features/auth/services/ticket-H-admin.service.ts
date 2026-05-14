@@ -57,3 +57,23 @@ export const deleteTicketByAdmin = async (id: string) => {
         throw error;
     }
 }
+
+export const updateTicketStatusByAdmin = async(id: string, status:string)=>{
+    try{
+        const res = await api.patch<ApiResponse<TicketResponse>>(`${TICKET_BASE_URL}/${id}/status`,
+        {status})
+        return res.data.data;
+    }catch(error){
+        throw error;
+    }
+}
+
+export const updateTicketPriorityByAdmin = async(id: string, priority:string)=>{
+    try{
+        const res = await api.patch<ApiResponse<TicketResponse>>(`${TICKET_BASE_URL}/${id}/priority`,
+        {priority})
+        return res.data.data;
+    }catch(error){
+        throw error;
+    }
+}
