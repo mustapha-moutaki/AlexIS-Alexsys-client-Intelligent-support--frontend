@@ -39,3 +39,12 @@ export const getTicketById = async(id:number)=>{
         throw error;
     }
 }
+
+export const updateTicketByAdmin = async (id: string, data: any) => {
+    try{
+        const res = await api.patch<ApiResponse<TicketResponse>>(`${TICKET_BASE_URL}/${id}`, data);
+        return res.data.data;
+    }catch(error){
+        throw error;
+    }
+}
