@@ -10,4 +10,8 @@ export interface TicketResponse {
   assignedToId: number;
   commentCount: number;
   attachmentCount: number;
+  clientName: string;
+  assignedToName: string;
+  categoryName: string;
+  
 }
