@@ -23,6 +23,14 @@ export const createAttachment = async (file: File, ticketId: number) => {
   }
 };
 
+export const uploadAttachments = async (formData: FormData) => {
+  const response = await api.post(`${ATTACHMENT_ENDPOINT}`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data', // Usually optional, browser does it
+    },
+  });
+  return response.data;
+};
 
 
 export const getAttachmentsByTicketId = async (ticketId: number) => {
@@ -43,4 +51,19 @@ export const deleteAttachment = async (id: number) => {
     console.error('Error deleting attachment:', error);
     throw error;
   }
+};
+
+/**
+ * Upload a single file without a ticketId.
+ * Returns the attachment ID so it can be sent with ticket creation.
+ */
+export const uploadFileAndGetId = async (file: File): Promise<number> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await api.post<ApiResponse<AttachmentResponse>>(
+    `${ATTACHMENT_ENDPOINT}`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
+  return response.data.data.id;
 };
