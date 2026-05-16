@@ -31,7 +31,7 @@ export const useAgentById = (id: string, enabled: boolean = true) => {
     return useQuery({
         queryKey: ["agent", id],
         queryFn: () => getAgentById(id),
-        enabled:enabled,
+        enabled: enabled && !!id,
         // caching config  
         staleTime: 1000 * 60 * 2, // 2 minutes fresh data
         gcTime: 1000 * 60 * 10, // keep cached for 10 minutes (even if inactive)
