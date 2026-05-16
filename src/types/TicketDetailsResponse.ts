@@ -20,6 +20,8 @@ export interface TicketDetailsResponse{
      assignedAt:string;
      resolvedAt:string;
      closedAt:string;
+     assignedToId:number;
+     clientId:number;
 
 
 }
