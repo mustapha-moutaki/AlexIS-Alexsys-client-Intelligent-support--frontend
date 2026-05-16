@@ -16,6 +16,7 @@ import Breadcrumbs from "@/src/shared/components/ui/Breadcrumbs";
 import useAuthStore from "@/src/store/authStore";
 import toast from "react-hot-toast";
 import { useCreateComment } from "@/src/hooks/useComment";
+import { useCreateAttachment } from "@/src/hooks/useAttachment";
 
 // --- Configuration Mappings (Consistent with your previous request) ---
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
@@ -46,9 +47,10 @@ export default function TicketDetailPage() {
   const [content, setContnet] = useState<string>("");
   const router = useRouter();
   const [isUploadOpened, setIsUploadOpened] = useState(false);
-const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const { mutate, isPending } = useCreateComment(Number(ticketId), content);
+const { mutate: createAttachment, isPending: isAttachmentPending } =useCreateAttachment();
 
   useEffect(() => {
     if (user) {
@@ -89,6 +91,20 @@ const [selectedFile, setSelectedFile] = useState<File | null>(null);
       return `${date.toLocaleDateString([], { month: 'short', day: 'numeric' })}, ${time}`;
     }
   };
+
+
+
+  const handleSubmitFile = () => {
+  if (!selectedFile) return;
+
+  createAttachment({
+    file: selectedFile,
+    ticketId: Number(ticketId),
+  });
+
+  setSelectedFile(null);
+  setIsUploadOpened(false);
+};
 
   if (isLoading) return <div className="flex justify-center items-center min-h-[400px]"><SimpleSpinner /></div>;
   if (isError || !ticket) return <div className="p-8 text-red-500">Error: {error?.message || "Ticket not found"}</div>;
@@ -150,15 +166,50 @@ const [selectedFile, setSelectedFile] = useState<File | null>(null);
       Attachments ({ticket.attachments?.length || 0})
     </h3>
 
-    {!isUploadOpened && (
-      <button
-        className="flex items-center gap-2 border border-slate-200 text-slate-600 hover:bg-slate-50 px-4 py-2 rounded-xl text-sm font-bold transition-colors"
-        onClick={() => setIsUploadOpened(true)}
-      >
-        <PlusIcon size={16} />
-        New Attachment
-      </button>
-    )}
+   {isAttachmentPending ? (
+  <button
+    disabled
+    className="flex items-center gap-2 border border-slate-200 text-slate-400 bg-slate-50 px-4 py-2 rounded-xl text-sm font-bold cursor-not-allowed"
+  >
+    <svg
+      className="animate-spin h-4 w-4 text-slate-400"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+        fill="none"
+      />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8v8H4z"
+      />
+    </svg>
+
+    Uploading...
+  </button>
+) : !isUploadOpened ? (
+  <button
+    className="flex items-center gap-2 border border-slate-200 text-slate-600 hover:bg-slate-50 px-4 py-2 rounded-xl text-sm font-bold transition-colors"
+    onClick={() => setIsUploadOpened(true)}
+  >
+    <PlusIcon size={16} />
+    New Attachment
+  </button>
+) : (
+  <button
+    className="flex items-center gap-2 border border-blue-200 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-xl text-sm font-bold transition-colors"
+    onClick={() => handleSubmitFile()}
+  >
+    <PlusIcon size={16} />
+    Confirm Upload
+  </button>
+)}
   </div>
 
   {/* NEW UPLOAD INPUT AREA */}
