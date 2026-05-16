@@ -1,14 +1,21 @@
 "use client";
-import React from "react";
-import { useParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { 
   Calendar, User, Paperclip, MessageSquare, Clock, 
-  ExternalLink, Shield, Tag, ChevronLeft, Download, FileText 
+  ExternalLink, Shield, Tag, ChevronLeft, Download, FileText, 
+  PlusIcon,
+  X,
+  Send,
+  ArrowUpRight
 } from "lucide-react";
 import { useTicketByIdByAdmin } from "@/src/hooks/useTickets";
 import SimpleSpinner from "@/components/ui/SimpleSpinner";
 import ButtonGoBack from "@/src/shared/components/ui/ButtonGoBack";
 import Breadcrumbs from "@/src/shared/components/ui/Breadcrumbs";
+import useAuthStore from "@/src/store/authStore";
+import toast from "react-hot-toast";
+import { useCreateComment } from "@/src/hooks/useComment";
 
 // --- Configuration Mappings (Consistent with your previous request) ---
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
@@ -33,12 +40,59 @@ export default function TicketDetailPage() {
   const params = useParams();
   const ticketId = params.id;
   const { data: ticket, isLoading, isError, error } = useTicketByIdByAdmin(Number(ticketId));
+  const [isAddCommentOpened, setIsAddCommentOpened] = useState(false);
+  const [currentUser, setCurrentUser]= useState<any | null>(null)
+ const user = useAuthStore((state)=>state.user)
+  const [content, setContnet] = useState<string>("");
+const router = useRouter();
+  const {mutate, isPending} = useCreateComment(Number(ticketId), content);
+
+  useEffect(() => {
+  if (user) {
+    setCurrentUser(user);
+  }
+}, [user]);
+
+  const handleOpenCloseComment = ()=>{
+    setIsAddCommentOpened(!isAddCommentOpened);
+  }
+
+
+
+  const handleAddComment = (ticketId: number) => {
+    console.log(ticketId, content);
+    
+    if (!content.trim()) return;
+    mutate({ ticketId, content });
+    setContnet("");
+  };
+
+  
+ 
+
+
+const formatTimestamp = (dateString:any) => {
+  const date = new Date(dateString);
+  const today = new Date();
+  
+  const isToday = date.toDateString() === today.toDateString();
+  
+  const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  
+  if (isToday) {
+    return `Today, ${time}`;
+  } else {
+    // Returns format like "Oct 24, 10:30 AM"
+    return `${date.toLocaleDateString([], { month: 'short', day: 'numeric' })}, ${time}`;
+  }
+};
 
   if (isLoading) return <div className="flex justify-center items-center min-h-[400px]"><SimpleSpinner /></div>;
   if (isError || !ticket) return <div className="p-8 text-red-500">Error: {error?.message || "Ticket not found"}</div>;
+    const statusStyle = STATUS_CONFIG[ticket.status] || STATUS_CONFIG.OPEN;
+    const typeStyle = ISSUE_TYPE_CONFIG[ticket.issueType] || ISSUE_TYPE_CONFIG.OTHER;
 
-  const statusStyle = STATUS_CONFIG[ticket.status] || STATUS_CONFIG.OPEN;
-  const typeStyle = ISSUE_TYPE_CONFIG[ticket.issueType] || ISSUE_TYPE_CONFIG.OTHER;
+  
 
   return (
     <div className="w-full min-h-screen bg-white font-sans pb-20">
@@ -113,39 +167,130 @@ export default function TicketDetailPage() {
             )}
 
             {/* Comments Section */}
-            <section className="pt-8 border-t border-slate-100">
-              <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
-                <MessageSquare size={16} /> Discussion ({ticket.comments?.length || 0})
-              </h3>
-              
-              <div className="space-y-6">
-                {ticket.comments?.map((comment) => (
-                  <div key={comment.id} className="flex gap-4">
-                    <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold shrink-0 border border-slate-200 overflow-hidden">
-                      {comment.authorName || "Unknown"}
-                    </div>
-                    <div className="flex-1 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-bold text-slate-900 text-sm">{comment.authorName || "Unknown"}</span>
-                        <span className="text-xs text-slate-400 flex items-center gap-1">
-                          <Clock size={12} /> {new Date(comment.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <p className="text-slate-700 text-sm leading-normal">
-                        {comment.content}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-                
-                {/* Empty State for Comments */}
-                {(!ticket.comments || ticket.comments.length === 0) && (
-                    <div className="text-center py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                        <p className="text-slate-400 text-sm italic">No comments yet.</p>
-                    </div>
-                )}
+            
+          <section className="pt-8 border-t border-slate-100">
+  {/* Header Section */}
+  <div className="flex items-center justify-between mb-6">
+    <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+      <MessageSquare size={14} />
+      Discussion ({ticket.comments?.length || 0})
+    </h3>
+
+    {!isAddCommentOpened && (
+      <button
+        className="flex items-center gap-2 border border-slate-200 text-slate-600 hover:bg-slate-50 px-4 py-2 rounded-xl text-sm font-bold transition-colors"
+        onClick={handleOpenCloseComment}
+      >
+        <PlusIcon size={16} />
+        New Note
+      </button>
+    )}
+  </div>
+
+  {/* 
+      SCROLLABLE SECTION 
+      Logic: If comments > 5, apply fixed height and scroll.
+  */}
+  <div 
+    className={`pr-2 transition-all duration-300 ${
+      ticket.comments?.length > 5 
+        ? "max-h-[500px] overflow-y-auto" 
+        : "max-h-fit overflow-visible"
+    } 
+    [&::-webkit-scrollbar]:w-1.5
+    [&::-webkit-scrollbar-track]:bg-transparent
+    [&::-webkit-scrollbar-thumb]:bg-slate-200
+    [&::-webkit-scrollbar-thumb]:rounded-full
+    hover:[&::-webkit-scrollbar-thumb]:bg-slate-300`}
+  >
+    <div className="space-y-6">
+      {ticket.comments?.map((comment) => {
+        const isMine = comment.authorId === user?.id;
+
+        return (
+          <div
+            key={comment.id}
+            className={`flex gap-3 ${isMine ? "flex-row" : "flex-row-reverse"}`}
+          >
+            {/* Avatar */}
+            <div className={`h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 border ${
+              isMine 
+                ? "bg-slate-900 border-slate-900 text-white" 
+                : "bg-slate-50 border-slate-200 text-slate-500"
+            }`}>
+              {isMine 
+                ? (currentUser?.firstName?.charAt(0) || "M") 
+                : (comment.authorName?.charAt(0) || "U")}
+            </div>
+
+            {/* Content Wrapper */}
+            <div className={`max-w-[75%] flex flex-col ${isMine ? "items-start" : "items-end"}`}>
+              {/* Metadata */}
+              <div className="flex items-center gap-2 mb-1.5 px-1">
+                <span className="text-xs font-semibold text-slate-700">
+                  {isMine ? "You" : (comment.authorName || "Unknown")}
+                </span>
+                <span className="text-[10px] text-slate-400 whitespace-nowrap">
+  {formatTimestamp(comment.createdAt)}
+</span>
               </div>
-            </section>
+
+              {/* Message Bubble */}
+              <div
+                className={`p-3 rounded-2xl text-sm leading-relaxed border ${
+                  isMine
+                    ? "bg-slate-100 text-slate-800 border-slate-200 rounded-tl-none" 
+                    : "bg-white text-slate-600 border-slate-100 shadow-sm rounded-tr-none"
+                }`}
+              >
+                {comment.content}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+
+      {/* Empty State */}
+      {(!ticket.comments || ticket.comments.length === 0) && (
+        <div className="text-center py-10 border-2 border-dashed border-slate-100 rounded-2xl">
+          <p className="text-slate-400 text-sm italic">No notes yet.</p>
+        </div>
+      )}
+    </div>
+  </div>
+
+  {/* Add Comment Input Area - Always visible at bottom when opened */}
+  {isAddCommentOpened && (
+    <div className="mt-6 pt-6 border-t border-slate-100">
+      <div className="relative group">
+        <textarea
+          rows={3}
+          className="w-full border border-slate-200 rounded-xl p-4 text-sm focus:border-slate-400 focus:outline-none transition-all placeholder:text-slate-300 bg-slate-50/50 resize-none"
+          placeholder="Type a note..."
+          value={content}
+          onChange={(e) => setContnet(e.target.value)}
+          autoFocus
+        />
+        
+        <div className="flex justify-end gap-2 mt-3">
+          <button
+            className="px-4 py-2 text-sm font-semibold text-slate-400 hover:text-slate-600 transition-colors"
+            onClick={handleOpenCloseComment}
+          >
+            Cancel
+          </button>
+          <button
+            className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all shadow-md active:scale-95"
+            onClick={() => handleAddComment(ticket.id)}
+          >
+            <Send size={14} />
+            Post Note
+          </button>
+        </div>
+      </div>
+    </div>
+  )}
+</section>
           </div>
 
           {/* RIGHT COLUMN: SIDEBAR METADATA */}
@@ -181,19 +326,49 @@ export default function TicketDetailPage() {
                 <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">People</h3>
                 
                 <div className="space-y-3">
-                    <div className="flex flex-col">
-                        <span className="text-[11px] text-slate-400 font-bold uppercase">Client</span>
-                        <span className="text-sm font-semibold text-slate-800 flex items-center gap-2">
-                            <div className="h-2 w-2 bg-blue-500 rounded-full" /> {ticket.clientName} 
-                            <button className="text-sm bg-blue-500 text-white px-2 py-0.5 rounded font-semibold text-slate-800 flex items-center gap-2" onClick={()=>{alert("this feature is not integrated yet")}}>View profile</button>
-                        </span>
-                    </div>
-                    <div className="flex flex-col">
-                        <span className="text-[11px] text-slate-400 font-bold uppercase">Assigned To</span>
-                        <span className="text-sm font-semibold text-slate-800 flex items-center gap-2">
-                            <User size={14} className="text-slate-400"/> {ticket.assignedToName || "Unassigned"}
-                            <button className="text-sm bg-blue-500 text-white px-2 py-0.5 rounded font-semibold text-slate-800 flex items-center gap-2" onClick={()=>{alert("this feature is not integrated yet")}}>View profile</button>
-                        </span>
+                        <div className="flex flex-col gap-1">
+    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+        Client
+    </span>
+    
+    <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
+            <User size={14} className="text-slate-400" />
+            {ticket.clientName || "Unassigned"}
+        </div>
+
+        {ticket.clientId && (
+            <button
+                onClick={() => router.push(`/dashboard/users/${ticket.clientId}`)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-colors border border-transparent hover:border-slate-200"
+                title="View profile"
+            >
+                <ArrowUpRight size={14} />
+            </button>
+        )}
+    </div>
+</div>
+                    <div className="flex flex-col gap-1">
+    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+        Assigned To
+    </span>
+    
+    <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
+            <User size={14} className="text-slate-400" />
+            {ticket.assignedToName || "Unassigned"}
+        </div>
+
+        {ticket.assignedToId && (
+            <button
+                onClick={() => router.push(`/dashboard/users/${ticket.assignedToId}`)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-colors border border-transparent hover:border-slate-200"
+                title="View profile"
+            >
+                <ArrowUpRight size={14} />
+            </button>
+        )}
+    </div>
                     </div>
                 </div>
               </div>
