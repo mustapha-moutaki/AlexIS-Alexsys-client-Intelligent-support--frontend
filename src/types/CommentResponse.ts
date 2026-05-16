@@ -3,4 +3,5 @@ export interface CommentResponse{
     content:string;
     authorName:string;
     createdAt:string;
+    authorId?:number;
 }
