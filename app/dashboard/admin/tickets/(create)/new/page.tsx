@@ -4,9 +4,14 @@ import { useCategories } from "@/src/hooks/useCategory";
 import { useClients } from "@/src/hooks/useClient";
 import { useCreateTicketByAdmin } from "@/src/hooks/useTickets";
 import CreateTicketFromAdmin from "@/src/shared/components/forms/ticket-forms/admin/CreateTicketFromAdmin";
+import type { CreateTicketFormPayload } from "@/src/shared/components/forms/ticket-forms/admin/CreateTicketFromAdmin";
 import Breadcrumbs from "@/src/shared/components/ui/Breadcrumbs";
 import ButtonGoBack from "@/src/shared/components/ui/ButtonGoBack";
 import { useRouter } from "next/navigation";
+import { createAttachment } from "@/src/features/auth/services/attachment.service";
+import { createComment } from "@/src/features/auth/services/comment.service";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function CreateTicketPage() {
 
@@ -25,17 +30,59 @@ interface TicketFormData {
 }
 
 // handle create ticket request
-const {mutateAsync, isPending}= useCreateTicketByAdmin();
+const {mutateAsync, isPending: isCreatingTicket}= useCreateTicketByAdmin();
 // fetch categories, clients, agents
 const {data: categories} = useCategories();
 const {data: clients} = useClients();
 const {data: agents} = useAgents();
 
-  const handleCreate = async (data: TicketFormData) => {
+const [isProcessing, setIsProcessing] = useState(false);
+const isPending = isCreatingTicket || isProcessing;
 
-   await mutateAsync(data);
-   router.push("/dashboard/admin/tickets");
-}
+  const handleCreate = async (payload: CreateTicketFormPayload) => {
+    const { formData, commentText, files } = payload;
+
+    try {
+      setIsProcessing(true);
+
+      // 1. Create the ticket first
+      const createdTicket = await mutateAsync(formData);
+
+      if (!createdTicket?.id) {
+        throw new Error("Ticket created but no ID returned");
+      }
+
+      // 2. Upload files with the ticket ID (backend requires ticketId)
+      if (files.length > 0) {
+        try {
+          await Promise.all(
+            files.map((file) => createAttachment(file, createdTicket.id))
+          );
+        } catch {
+          toast.error("Ticket created, but some attachments could not be uploaded.");
+        }
+      }
+
+      // 3. If comment text is provided, create comment
+      if (commentText.trim()) {
+        try {
+          await createComment({
+            ticketId: createdTicket.id,
+            content: commentText.trim(),
+          });
+        } catch {
+          toast.error("Ticket created, but the comment could not be added.");
+        }
+      }
+
+      router.push("/dashboard/admin/tickets");
+    } catch (error) {
+      // Toast errors are already handled by the mutation hooks
+      console.error("Error creating ticket:", error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
 
   return (
