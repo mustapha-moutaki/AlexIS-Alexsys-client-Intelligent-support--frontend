@@ -7,4 +7,5 @@ export interface TicketFormData {
   categoryId: string;
   clientId: string;
   assignedToId: string;
+  attachmentIds?: number[];
 }
