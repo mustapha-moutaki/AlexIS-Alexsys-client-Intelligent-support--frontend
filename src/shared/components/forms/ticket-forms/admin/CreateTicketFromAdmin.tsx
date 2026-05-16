@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { 
   Send, 
   AlertCircle, 
@@ -10,7 +10,13 @@ import {
   User, 
   Users, 
   Layers, 
-  Activity 
+  Activity,
+  MessageSquare,
+  Paperclip,
+  X,
+  FileText,
+  ImageIcon,
+  Upload
 } from "lucide-react";
 import { Agent } from "@/src/types/Agent";
 import { Client } from "@/src/types/Client";
@@ -29,7 +35,13 @@ interface TicketFormData {
   assignedToId: string;
 }
 
-export default function CreateTicketFromAdmin({ onCreate, categories, clients, agents, isPending }: { onCreate: (data:TicketFormData) => void, categories:any, clients:any, agents:any, isPending:boolean }) {
+export interface CreateTicketFormPayload {
+  formData: TicketFormData;
+  commentText: string;
+  files: File[];
+}
+
+export default function CreateTicketFromAdmin({ onCreate, categories, clients, agents, isPending }: { onCreate: (payload: CreateTicketFormPayload) => void, categories:any, clients:any, agents:any, isPending:boolean }) {
   const [formData, setFormData] = useState<TicketFormData>({
     title: "",
     description: "",
@@ -41,14 +53,53 @@ export default function CreateTicketFromAdmin({ onCreate, categories, clients, a
     assignedToId: "",
   });
 
-  
+  const [commentText, setCommentText] = useState("");
+  const [files, setFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/jpg", "application/pdf"];
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    const validFiles = selectedFiles.filter((file) => {
+      if (!ACCEPTED_TYPES.includes(file.type)) {
+        alert(`"${file.name}" is not a supported file type. Only PNG, JPG, and PDF are allowed.`);
+        return false;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        alert(`"${file.name}" exceeds the 10MB size limit.`);
+        return false;
+      }
+      return true;
+    });
+    setFiles((prev) => [...prev, ...validFiles]);
+    // Reset input so the same file can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removeFile = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const getFileIcon = (file: File) => {
+    if (file.type === "application/pdf") return <FileText size={16} className="text-red-500" />;
+    return <ImageIcon size={16} className="text-blue-500" />;
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  };
+
   const handleSubmit = (e:React.FormEvent<HTMLFormElement>)=>{
     e.preventDefault();
-    onCreate(formData)
+    onCreate({ formData, commentText, files });
   }
 
   return (
@@ -175,6 +226,82 @@ export default function CreateTicketFromAdmin({ onCreate, categories, clients, a
     </option>
   ))}
 </select>
+          </div>
+        </div>
+
+        {/* SECTION 4: COMMENT & ATTACHMENTS */}
+        <div className="pt-6 border-t border-slate-100 space-y-6">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            Initial Comment & Attachments
+          </h3>
+
+          {/* Comment */}
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+              <MessageSquare size={16} className="text-slate-400" /> Comment
+              <span className="text-xs font-normal text-slate-400">(optional)</span>
+            </label>
+            <textarea
+              rows={4}
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder="Add an initial comment to the ticket..."
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none placeholder:text-slate-400"
+            />
+          </div>
+
+          {/* File Upload */}
+          <div className="space-y-3">
+            <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+              <Paperclip size={16} className="text-slate-400" /> Attachments
+              <span className="text-xs font-normal text-slate-400">(PNG, JPG, PDF — max 10MB each)</span>
+            </label>
+
+            {/* Drop zone / upload button */}
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="flex flex-col items-center justify-center gap-2 px-6 py-8 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-all"
+            >
+              <Upload size={24} className="text-slate-400" />
+              <p className="text-sm text-slate-500">
+                Click to upload files
+              </p>
+              <p className="text-xs text-slate-400">PNG, JPG, or PDF</p>
+            </div>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept=".png,.jpg,.jpeg,.pdf"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+
+            {/* File list */}
+            {files.length > 0 && (
+              <div className="space-y-2">
+                {files.map((file, index) => (
+                  <div
+                    key={`${file.name}-${index}`}
+                    className="flex items-center justify-between px-4 py-2.5 bg-slate-50 rounded-lg border border-slate-100"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      {getFileIcon(file)}
+                      <span className="text-sm text-slate-700 truncate">{file.name}</span>
+                      <span className="text-xs text-slate-400 flex-shrink-0">{formatFileSize(file.size)}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(index)}
+                      className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors flex-shrink-0"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
