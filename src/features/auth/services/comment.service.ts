@@ -42,7 +42,7 @@ export const getCommentsByTicketId = async(ticketId:string)=>{
 }
 
 // delete comment
-export const deleteComment = async(id:string)=>{
+export const deleteComment = async(id:number)=>{
    try{
     const res = await api.delete<ApiResponse<CommentResponse>>(`${COMMENT_ENDPOINT}/${id}`);
     return res.data.data;
@@ -52,15 +52,20 @@ export const deleteComment = async(id:string)=>{
 }
 
 // update comment
-export const updateComment = async(id:string,comment:CommentResponse)=>{
-   try{
-    const res = await api.put<ApiResponse<CommentResponse>>(`${COMMENT_ENDPOINT}/${id}`,comment);
+export const updateComment = async (id: string, content: string, ticketId: number) => {
+  try {
+    const res = await api.patch<ApiResponse<CommentResponse>>(
+      `${COMMENT_ENDPOINT}/${id}`,
+      { 
+        content, 
+        ticketId // The backend is asking for this
+      }
+    );
     return res.data.data;
-   }catch(error){
+  } catch (error) {
     throw error;
-   }
-}
-
+  }
+};
 // create comment
 export const createComment = async(data:{ticketId:number, content:string}):Promise<CommentResponse>=>{
    //  const user = useAuthStore.getState().user;
@@ -82,3 +87,5 @@ export const createComment = async(data:{ticketId:number, content:string}):Promi
     throw errorMessage;
    }
 }
+
+
