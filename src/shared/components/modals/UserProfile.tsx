@@ -5,6 +5,7 @@ import {
   MapPin, Activity, Zap, Star, Edit3, 
   Calendar, CheckCircle, Fingerprint
 } from "lucide-react";
+import ButtonGoBack from "../ui/ButtonGoBack";
 
 interface UserProfileProps {
   user: any;
@@ -24,6 +25,7 @@ export default function UserProfile({ user }: UserProfileProps) {
           
           {/* LEFT COLUMN: Profile Summary */}
           <div className="lg:col-span-4 space-y-6">
+            <ButtonGoBack/>
             <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
               <div className="p-8 flex flex-col items-center text-center">
                 {/* Avatar */}
