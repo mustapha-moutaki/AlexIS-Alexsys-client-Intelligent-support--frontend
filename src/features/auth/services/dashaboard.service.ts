@@ -47,3 +47,9 @@ export const getClientDashboardOverview = async ()=>{
     return res.data.data;
 }
 
+
+// stats for graphs
+export const getStatsForGraphs = async()=>{
+    const res = await api.get<ApiResponse<any>>("/dashboard/graphs/stats");
+    return res.data.data;
+}
