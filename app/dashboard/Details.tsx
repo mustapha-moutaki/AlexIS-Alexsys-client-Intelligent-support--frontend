@@ -12,8 +12,7 @@ export default function Details() {
            <FieldSkeleton/>
       <FieldSkeleton/>
       </div>
-   
-    <GlassComponent/>
+
 
     </>
   );
