@@ -212,13 +212,12 @@ export default function CreateTicketFromAdmin({ onCreate, categories, clients, a
             </label>
     <select
   name="assignedToId"
-  value={formData.assignedToId}
+  value={formData.assignedToId || ""} // Ensure it handles null/undefined
   onChange={handleChange}
   className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-blue-500 transition-all"
 >
-  <option value="" disabled>
-    Select Agent
-  </option>
+  {/* The "None" option */}
+  <option value="">Not Yet Assigned</option>
 
   {agents?.map((a: Agent) => (
     <option key={a.id} value={a.id}>
