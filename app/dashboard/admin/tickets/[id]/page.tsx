@@ -7,7 +7,9 @@ import {
   PlusIcon,
   X,
   Send,
-  ArrowUpRight
+  ArrowUpRight,
+  Trash2,
+  Trash
 } from "lucide-react";
 import { useTicketByIdByAdmin } from "@/src/hooks/useTickets";
 import SimpleSpinner from "@/components/ui/SimpleSpinner";
@@ -15,8 +17,8 @@ import ButtonGoBack from "@/src/shared/components/ui/ButtonGoBack";
 import Breadcrumbs from "@/src/shared/components/ui/Breadcrumbs";
 import useAuthStore from "@/src/store/authStore";
 import toast from "react-hot-toast";
-import { useCreateComment } from "@/src/hooks/useComment";
-import { useCreateAttachment } from "@/src/hooks/useAttachment";
+import { useCreateComment, useDeleteComment, useEditComment } from "@/src/hooks/useComment";
+import { useCreateAttachment, useDeleteAttachment } from "@/src/hooks/useAttachment";
 
 // --- Configuration Mappings (Consistent with your previous request) ---
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
@@ -49,8 +51,13 @@ export default function TicketDetailPage() {
   const [isUploadOpened, setIsUploadOpened] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
+
   const { mutate, isPending } = useCreateComment(Number(ticketId), content);
-const { mutate: createAttachment, isPending: isAttachmentPending } =useCreateAttachment();
+  const { mutate: createAttachment, isPending: isAttachmentPending } = useCreateAttachment();
+  const { mutate: deleteAttachment, isPending: isAttachmentDeleting } = useDeleteAttachment();
+const { mutate: editComment, isPending: isEditing } = useEditComment(ticketId as string);
+const { mutate: deleteCommentMutation, isPending: isCommentDeleting } = useDeleteComment();
 
   useEffect(() => {
     if (user) {
@@ -72,9 +79,26 @@ const { mutate: createAttachment, isPending: isAttachmentPending } =useCreateAtt
     setContnet("");
   };
 
+  const handleDelete = (id: number) => {
+    console.log(id)
+    const res = deleteAttachment(id);
+  }
 
 
 
+  const [editingCommentId, setEditingCommentId] = useState(null); 
+// Store the text being typed
+const [editValue, setEditValue] = useState(""); 
+
+const handleEditClick = (comment:any) => {
+  setEditingCommentId(comment.id);
+  setEditValue(comment.content);
+};
+
+const handleCancel = () => {
+  setEditingCommentId(null);
+  setEditValue("");
+};
 
   const formatTimestamp = (dateString: any) => {
     const date = new Date(dateString);
@@ -93,18 +117,33 @@ const { mutate: createAttachment, isPending: isAttachmentPending } =useCreateAtt
   };
 
 
+const handleUpdate = (id: string, content: string) => {
+
+  editComment({ id, content }); 
+  
+  setEditingCommentId(null);
+  setEditValue("");
+};
 
   const handleSubmitFile = () => {
-  if (!selectedFile) return;
+    if (!selectedFile) return;
 
-  createAttachment({
-    file: selectedFile,
-    ticketId: Number(ticketId),
-  });
+    createAttachment({
+      file: selectedFile,
+      ticketId: Number(ticketId),
+    });
 
-  setSelectedFile(null);
-  setIsUploadOpened(false);
-};
+    setSelectedFile(null);
+    setIsUploadOpened(false);
+  };
+
+  const deleteComment = (commentId: string) => {
+    if(window.confirm("Are u sure you want to delete this comment ?")){
+      deleteCommentMutation(Number(commentId));
+
+    }
+
+  }
 
   if (isLoading) return <div className="flex justify-center items-center min-h-[400px]"><SimpleSpinner /></div>;
   if (isError || !ticket) return <div className="p-8 text-red-500">Error: {error?.message || "Ticket not found"}</div>;
@@ -159,157 +198,170 @@ const { mutate: createAttachment, isPending: isAttachmentPending } =useCreateAtt
 
             {/* Attachments Section */}
             {/* Attachments Section */}
-<section className="pt-8 border-t border-slate-100">
-  <div className="flex items-center justify-between mb-6">
-    <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-      <Paperclip size={14} /> 
-      Attachments ({ticket.attachments?.length || 0})
-    </h3>
+            <section className="pt-8 border-t border-slate-100">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                  <Paperclip size={14} />
+                  Attachments ({ticket.attachments?.length || 0})
+                </h3>
 
-   {isAttachmentPending ? (
-  <button
-    disabled
-    className="flex items-center gap-2 border border-slate-200 text-slate-400 bg-slate-50 px-4 py-2 rounded-xl text-sm font-bold cursor-not-allowed"
-  >
-    <svg
-      className="animate-spin h-4 w-4 text-slate-400"
-      viewBox="0 0 24 24"
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-        fill="none"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8v8H4z"
-      />
-    </svg>
+                {isAttachmentPending ? (
+                  <button
+                    disabled
+                    className="flex items-center gap-2 border border-slate-200 text-slate-400 bg-slate-50 px-4 py-2 rounded-xl text-sm font-bold cursor-not-allowed"
+                  >
+                    <svg
+                      className="animate-spin h-4 w-4 text-slate-400"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8H4z"
+                      />
+                    </svg>
 
-    Uploading...
-  </button>
-) : !isUploadOpened ? (
-  <button
-    className="flex items-center gap-2 border border-slate-200 text-slate-600 hover:bg-slate-50 px-4 py-2 rounded-xl text-sm font-bold transition-colors"
-    onClick={() => setIsUploadOpened(true)}
-  >
-    <PlusIcon size={16} />
-    New Attachment
-  </button>
-) : (
-  <button
-    className="flex items-center gap-2 border border-blue-200 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-xl text-sm font-bold transition-colors"
-    onClick={() => handleSubmitFile()}
-  >
-    <PlusIcon size={16} />
-    Confirm Upload
-  </button>
-)}
-  </div>
-
-  {/* NEW UPLOAD INPUT AREA */}
-  {isUploadOpened && (
-    <div className="mb-6 p-6 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/30 animate-in fade-in slide-in-from-top-2">
-      <div className="flex flex-col items-center justify-center">
-        <label className="flex flex-col items-center justify-center w-full cursor-pointer group">
-          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-            <div className="p-3 bg-white rounded-full shadow-sm border border-slate-100 mb-3 group-hover:scale-110 transition-transform">
-              <Paperclip size={20} className="text-slate-400 group-hover:text-slate-600" />
-            </div>
-            <p className="text-sm font-semibold text-slate-600">
-              {selectedFile ? selectedFile.name : "Click to select a file"}
-            </p>
-            <p className="text-xs text-slate-400 mt-1">PNG, JPG or PDF only</p>
-          </div>
-          <input 
-            type="file" 
-            className="hidden" 
-            accept=".png,.jpg,.jpeg,.pdf"
-            onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-          />
-        </label>
-
-        <div className="flex gap-3 mt-4 w-full justify-center">
-          <button
-            className="px-4 py-2 text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors"
-            onClick={() => {
-              setIsUploadOpened(false);
-              setSelectedFile(null);
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            disabled={!selectedFile}
-            className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-sm ${
-              selectedFile 
-              ? "bg-slate-900 text-white hover:bg-slate-800" 
-              : "bg-slate-200 text-slate-400 cursor-not-allowed"
-            }`}
-            onClick={() => {
-              // Handle your upload logic here
-              console.log("Uploading:", selectedFile);
-              // After success:
-              // setIsUploadOpened(false);
-              // setSelectedFile(null);
-            }}
-          >
-            <Send size={14} />
-            Upload File
-          </button>
-        </div>
-      </div>
-    </div>
-  )}
-
-  {ticket.attachments?.length > 0 ? (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {ticket.attachments.map((file) => (
-        <div 
-          key={file.id} 
-          className="flex items-center justify-between p-3 border border-slate-100 bg-slate-50/30 rounded-2xl hover:bg-white hover:border-slate-200 hover:shadow-sm transition-all group"
-        >
-          <div className="flex items-center gap-3 overflow-hidden">
-            <div className="p-2.5 bg-white border border-slate-100 text-slate-400 rounded-xl group-hover:text-slate-600 transition-colors">
-              <FileText size={20} />
-            </div>
-            
-            <div className="overflow-hidden">
-              <p className="text-sm font-semibold text-slate-700 truncate max-w-[180px]">
-                {file.fileName}
-              </p>
-              <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium">
-                <span className="uppercase">{file.fileType.split('/')[1]}</span>
-                <span>•</span>
-                <span>{formatTimestamp(file.uploadedAt)}</span>
+                    Uploading...
+                  </button>
+                ) : !isUploadOpened ? (
+                  <button
+                    className="flex items-center gap-2 border border-slate-200 text-slate-600 hover:bg-slate-50 px-4 py-2 rounded-xl text-sm font-bold transition-colors"
+                    onClick={() => setIsUploadOpened(true)}
+                  >
+                    <PlusIcon size={16} />
+                    New Attachment
+                  </button>
+                ) : (
+                  <button
+                    className="flex items-center gap-2 border border-blue-200 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-xl text-sm font-bold transition-colors"
+                    onClick={() => handleSubmitFile()}
+                  >
+                    <PlusIcon size={16} />
+                    Confirm Upload
+                  </button>
+                )}
               </div>
-            </div>
-          </div>
 
-          <a 
-            href={file.fileUrl} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="p-2 text-slate-400 hover:text-slate-900 hover:bg-white rounded-lg transition-all"
-          >
-            <Download size={18} />
-          </a>
-        </div>
-      ))}
-    </div>
-  ) : (
-    !isUploadOpened && (
-      <div className="text-center py-10 border-2 border-dashed border-slate-100 rounded-2xl">
-        <p className="text-slate-400 text-sm italic">No attachments found.</p>
-      </div>
-    )
-  )}
-</section>
+              {/* NEW UPLOAD INPUT AREA */}
+              {isUploadOpened && (
+                <div className="mb-6 p-6 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/30 animate-in fade-in slide-in-from-top-2">
+                  <div className="flex flex-col items-center justify-center">
+                    <label className="flex flex-col items-center justify-center w-full cursor-pointer group">
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <div className="p-3 bg-white rounded-full shadow-sm border border-slate-100 mb-3 group-hover:scale-110 transition-transform">
+                          <Paperclip size={20} className="text-slate-400 group-hover:text-slate-600" />
+                        </div>
+                        <p className="text-sm font-semibold text-slate-600">
+                          {selectedFile ? selectedFile.name : "Click to select a file"}
+                        </p>
+                        <p className="text-xs text-slate-400 mt-1">PNG, JPG or PDF only</p>
+                      </div>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept=".png,.jpg,.jpeg,.pdf"
+                        onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                      />
+                    </label>
+
+                    <div className="flex gap-3 mt-4 w-full justify-center">
+                      <button
+                        className="px-4 py-2 text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors"
+                        onClick={() => {
+                          setIsUploadOpened(false);
+                          setSelectedFile(null);
+                        }}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        disabled={!selectedFile}
+                        className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-sm ${selectedFile
+                            ? "bg-slate-900 text-white hover:bg-slate-800"
+                            : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                          }`}
+                        onClick={() => {
+                          // Handle your upload logic here
+                          console.log("Uploading:", selectedFile);
+                          // After success:
+                          // setIsUploadOpened(false);
+                          // setSelectedFile(null);
+                        }}
+                      >
+                        <Send size={14} />
+                        Upload File
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {ticket.attachments?.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {ticket.attachments.map((file) => (
+                    <div
+                      key={file.id}
+                      className="flex items-center justify-between p-3 border border-slate-100 bg-slate-50/30 rounded-2xl hover:bg-white hover:border-slate-200 hover:shadow-sm transition-all group"
+                    >
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <div className="p-2.5 bg-white border border-slate-100 text-slate-400 rounded-xl group-hover:text-slate-600 transition-colors">
+                          <FileText size={20} />
+                        </div>
+
+                        <div className="flex items-center justify-between w-full group">
+                          <div className="overflow-hidden">
+                            <p className="text-sm font-semibold text-slate-700 truncate max-w-[180px]">
+                              {file.fileName}
+                            </p>
+                            <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium">
+                              <span className="uppercase">{file.fileType.split('/')[1]}</span>
+                              <span>•</span>
+                              <span>{formatTimestamp(file.uploadedAt)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {
+                        isAttachmentDeleting ? (
+                          <SimpleSpinner />
+                        ) : (
+                          <button
+                            onClick={() => handleDelete(file.id)} // Replace with your delete function
+                            className="p-1.5 rounded-md text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                            title="Delete attachment"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )
+                      }
+                      <a
+                        href={file.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 text-slate-400 hover:text-slate-900 hover:bg-white rounded-lg transition-all"
+                      >
+                        <Download size={18} />
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                !isUploadOpened && (
+                  <div className="text-center py-10 border-2 border-dashed border-slate-100 rounded-2xl">
+                    <p className="text-slate-400 text-sm italic">No attachments found.</p>
+                  </div>
+                )
+              )}
+            </section>
 
             {/* Comments Section */}
 
@@ -338,8 +390,8 @@ const { mutate: createAttachment, isPending: isAttachmentPending } =useCreateAtt
   */}
               <div
                 className={`pr-2 transition-all duration-300 ${ticket.comments?.length > 5
-                    ? "max-h-[500px] overflow-y-auto"
-                    : "max-h-fit overflow-visible"
+                  ? "max-h-[500px] overflow-y-auto"
+                  : "max-h-fit overflow-visible"
                   } 
     [&::-webkit-scrollbar]:w-1.5
     [&::-webkit-scrollbar-track]:bg-transparent
@@ -347,58 +399,137 @@ const { mutate: createAttachment, isPending: isAttachmentPending } =useCreateAtt
     [&::-webkit-scrollbar-thumb]:rounded-full
     hover:[&::-webkit-scrollbar-thumb]:bg-slate-300`}
               >
-                <div className="space-y-6">
-                  {ticket.comments?.map((comment) => {
-                    const isMine = comment.authorId === user?.id;
+               <div className="space-y-6">
+  {/* 1. We spread the comments into a new array and sort them by date */}
+  {[...(ticket.comments || [])]
+    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+    .map((comment) => {
+      const isMine = comment.authorId === user?.id;
 
-                    return (
-                      <div
-                        key={comment.id}
-                        className={`flex gap-3 ${isMine ? "flex-row" : "flex-row-reverse"}`}
-                      >
-                        {/* Avatar */}
-                        <div className={`h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 border ${isMine
-                            ? "bg-slate-900 border-slate-900 text-white"
-                            : "bg-slate-50 border-slate-200 text-slate-500"
-                          }`}>
-                          {isMine
-                            ? (currentUser?.firstName?.charAt(0) || "M")
-                            : (comment.authorName?.charAt(0) || "U")}
-                        </div>
+      return (
+        <div
+          key={comment.id}
+          className={`flex gap-3 ${isMine ? "flex-row" : "flex-row-reverse"}`}
+        >
+          {/* Avatar */}
+          <div
+            className={`h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 border ${
+              isMine
+                ? "bg-slate-900 border-slate-900 text-white"
+                : "bg-slate-50 border-slate-200 text-slate-500"
+            }`}
+          >
+            {isMine
+              ? currentUser?.firstName?.charAt(0) || "M"
+              : comment.authorName?.charAt(0) || "U"}
+          </div>
 
-                        {/* Content Wrapper */}
-                        <div className={`max-w-[75%] flex flex-col ${isMine ? "items-start" : "items-end"}`}>
-                          {/* Metadata */}
-                          <div className="flex items-center gap-2 mb-1.5 px-1">
-                            <span className="text-xs font-semibold text-slate-700">
-                              {isMine ? "You" : (comment.authorName || "Unknown")}
-                            </span>
-                            <span className="text-[10px] text-slate-400 whitespace-nowrap">
-                              {formatTimestamp(comment.createdAt)}
-                            </span>
-                          </div>
+          {/* Content Wrapper */}
+          <div
+            className={`max-w-[75%] flex flex-col ${
+              isMine ? "items-start" : "items-end"
+            }`}
+          >
+            {/* Metadata */}
+            <div className="flex items-center gap-2 mb-1.5 px-1">
+              <span className="text-xs font-semibold text-slate-700">
+                {isMine ? "You" : comment.authorName || "Unknown"}
+              </span>
+              <span className="text-[10px] text-slate-400 whitespace-nowrap">
+                {formatTimestamp(comment.createdAt)}
+              </span>
 
-                          {/* Message Bubble */}
-                          <div
-                            className={`p-3 rounded-2xl text-sm leading-relaxed border ${isMine
-                                ? "bg-slate-100 text-slate-800 border-slate-200 rounded-tl-none"
-                                : "bg-white text-slate-600 border-slate-100 shadow-sm rounded-tr-none"
-                              }`}
-                          >
-                            {comment.content}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+              {/* Edit Icon */}
+              {isMine && editingCommentId !== comment.id && (
+                <>
+                <button
+                  onClick={() => handleEditClick(comment)}
+                  className="ml-1 p-1 text-slate-400 hover:text-blue-600 hover:bg-slate-100 rounded-md transition-colors"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                    <path d="m15 5 4 4" />
+                  </svg>
+                </button>
 
-                  {/* Empty State */}
-                  {(!ticket.comments || ticket.comments.length === 0) && (
-                    <div className="text-center py-10 border-2 border-dashed border-slate-100 rounded-2xl">
-                      <p className="text-slate-400 text-sm italic">No notes yet.</p>
-                    </div>
-                  )}
+                <button onClick={() => deleteComment(comment.id.toString())}>
+                  
+                <Trash2 className="text-red-500" size={12}/>
+                </button>
+                </>
+                
+              )}
+            </div>
+
+            {/* Message Bubble Logic */}
+            {editingCommentId !== comment.id ? (
+              /* --- VIEW MODE --- */
+              <div
+                className={`p-3 rounded-2xl text-sm leading-relaxed border ${
+                  isMine
+                    ? "bg-slate-100 text-slate-800 border-slate-200 rounded-tl-none"
+                    : "bg-white text-slate-600 border-slate-100 shadow-sm rounded-tr-none"
+                }`}
+              >
+                {comment.content}
+              </div>
+            ) : (
+              /* --- EDIT MODE --- */
+              <div
+                className={`p-2 rounded-2xl text-sm border bg-white shadow-md border-blue-400 ${
+                  isMine ? "rounded-tl-none" : "rounded-tr-none"
+                }`}
+              >
+                <input
+                  autoFocus
+                  type="text"
+                  className="w-full p-1 bg-transparent outline-none text-slate-800"
+                  value={editValue}
+                  onChange={(e) => setEditValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter")
+                      handleUpdate(comment.id.toString(), editValue);
+                    if (e.key === "Escape") handleCancel();
+                  }}
+                />
+                <div className="flex justify-end gap-2 mt-1">
+                  <button
+                    onClick={handleCancel}
+                    className="text-[10px] text-slate-400 hover:text-slate-600 font-bold uppercase px-1"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleUpdate(comment.id.toString(), editValue)}
+                    className="text-[10px] text-blue-600 hover:text-blue-700 font-bold uppercase px-1"
+                  >
+                    {isEditing ? "Saving..." : "Save"}
+                  </button>
                 </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    })}
+
+  {/* Empty State */}
+  {(!ticket.comments || ticket.comments.length === 0) && (
+    <div className="text-center py-10 border-2 border-dashed border-slate-100 rounded-2xl">
+      <p className="text-slate-400 text-sm italic">No notes yet.</p>
+    </div>
+  )}
+</div>
               </div>
 
               {/* Add Comment Input Area - Always visible at bottom when opened */}
