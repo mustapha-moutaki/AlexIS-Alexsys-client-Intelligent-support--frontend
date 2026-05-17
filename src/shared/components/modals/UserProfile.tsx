@@ -2,155 +2,184 @@
 import React from "react";
 import { 
   User, Mail, Phone, Shield, Settings, 
-  MapPin, Activity, Zap, Star
+  MapPin, Activity, Zap, Star, Edit3, 
+  Calendar, CheckCircle, Fingerprint
 } from "lucide-react";
 
 interface UserProfileProps {
   user: any;
-  onClose?: () => void;
 }
 
+export default function UserProfile({ user }: UserProfileProps) {
+  if (!user) return null;
 
-
-
-export default function UserProfile({ user, onClose }: UserProfileProps) {
-  const BORDER = "1px solid #ffffff1f";
-  const GLASS_CARD = "#ffffff08";
-
-  
   return (
-    <div
-      className="fixed inset-0 z-[998] flex items-center justify-center"
-      style={{ background: "#000000ba", backdropFilter: "blur(6px)", borderRadius: "32px" }}
-      onClick={onClose}
-    >
-    <div
-      className="relative z-[999] w-full max-w-[90%] group"
-      style={{ maxHeight: "50vh"}}
-      onClick={(e) => e.stopPropagation()}
-    >
-      {/* 1. Main Container Window */}
-      <div 
-        className="relative overflow-hidden backdrop-blur-4xl rounded-[32px] flex flex-col p-5 gap-4 shadow-2xl transition-all duration-500 hover:-translate-y-1"
-        style={{ 
-          background: "linear-gradient(145deg, rgba(0, 0, 0, 1) 0%, rgba(255,255,255,0.02) 100%)",
-          border: "1px solid rgba(255, 255, 255, 0.55)",
-        }}
-      >
-        {/* Close Button */}
-        {onClose && (
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 z-10 flex items-center justify-center rounded-full transition-all hover:scale-110 hover:bg-white/10"
-            style={{ width: 32, height: 32, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
-        )}
-        {/* Top Section: Left 2x2 Grid + Right Tall Profile */}
-        <div className="flex-1 flex gap-3 min-h-0">
-          
-          {/* Left Side: 2x2 Grid */}
-          <div className="flex-[2] grid grid-cols-2 grid-rows-2 gap-2">
-            <StatCard icon={<Activity size={14} />} title="Recent Activity" value="24 Actions" trend="+12%" />
-            <StatCard icon={<Zap size={14} />} title="Performance" value="98.2%" trend="Stable" />
-            <StatCard icon={<Shield size={14} />} title="Security Level" value="High" trend="Encrypted" />
-            <StatCard icon={<Star size={14} />} title="Membership" value="Gold Tier" trend="Active" />
-          </div>
+    <div className="min-h-screen w-full bg-slate-50 flex flex-col">
+      {/* Top Banner / Cover Image */}
+      <div className="h-48 md:h-64 w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600" />
 
-          {/* Right Side: Tall Profile Hero */}
-          <div 
-            className="flex-1 rounded-[20px] flex flex-col items-center justify-center p-3 text-center"
-            style={{ background: GLASS_CARD, border: BORDER }}
-          >
-            <div className="relative mb-3">
-              <div className="w-16 h-16 rounded-full border-2 border-white/20 p-1 backdrop-blur-md">
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-sky-400/20 to-purple-500/20 flex items-center justify-center">
-                  <User size={28} className="text-white/80" />
+      {/* Main Content Container */}
+      <div className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24 pb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          {/* LEFT COLUMN: Profile Summary */}
+          <div className="lg:col-span-4 space-y-6">
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="p-8 flex flex-col items-center text-center">
+                {/* Avatar */}
+                <div className="relative mb-6">
+                  <div className="w-32 h-32 rounded-full border-4 border-white shadow-xl overflow-hidden bg-slate-100 flex items-center justify-center">
+                    {user.profilePicture ? (
+                      <img src={user.profilePicture} alt={user.username} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+                        <User size={60} strokeWidth={1.5} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 border-4 border-white rounded-full shadow-sm"></div>
+                </div>
+
+                {/* Name & Role */}
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold text-slate-900 capitalize">
+                    {user.firstName} {user.lastName}
+                  </h2>
+                  <div className="flex items-center justify-center gap-2 mt-1">
+                    <span className="text-sm font-medium text-slate-500">@{user.username}</span>
+                    <span className="px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-700 text-[10px] font-bold uppercase tracking-wider">
+                      {user.role}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="w-full space-y-4 pt-6 border-t border-slate-100">
+                   <DetailRow icon={<Mail size={18} />} label="Email" value={user.email} />
+                   <DetailRow icon={<Phone size={18} />} label="Phone" value={user.phoneNumber} />
+                   <DetailRow icon={<Fingerprint size={18} />} label="User ID" value={`#${user.id}`} />
+                </div>
+
+                <button className="w-full mt-8 flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition-all active:scale-[0.98]">
+                  <Edit3 size={16} /> Edit Profile
+                </button>
+              </div>
+            </div>
+
+            {/* Account Status Card */}
+            <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+              <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                <Shield size={18} className="text-indigo-600" /> Account Security
+              </h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 rounded-xl bg-green-50 border border-green-100">
+                  <span className="text-xs font-semibold text-green-700">Status</span>
+                  <span className="flex items-center gap-1 text-xs font-bold text-green-700">
+                    <CheckCircle size={14} /> Verified
+                  </span>
+                </div>
+                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                  <span className="text-xs font-semibold text-slate-600">Two-Factor</span>
+                  <span className="text-xs font-bold text-slate-400">Enabled</span>
                 </div>
               </div>
-              <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-[#1a1a1a] rounded-full"></div>
             </div>
+          </div>
+
+          {/* RIGHT COLUMN: Details & Activity */}
+          <div className="lg:col-span-8 space-y-6">
             
-            <h2 className="text-base font-bold text-white mb-0.5">{user.firstName} {user.lastName}</h2>
-            <p className="text-sky-400 text-xs font-medium mb-3">@{user.username}</p>
-            
-            <div className="w-full space-y-1.5">
-               <ProfileDetail icon={<Mail size={12} />} text={user.email} />
-               <ProfileDetail icon={<Phone size={12} />} text={user.phoneNumber} />
-               <ProfileDetail icon={<MapPin size={12} />} text="New York, USA" />
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <StatBox icon={<Zap className="text-amber-500" />} title="Role Access" value={user.role} desc="Full Admin Privileges" />
+              <StatBox icon={<Activity className="text-blue-500" />} title="Status" value="Active" desc="Last login: Today" />
+              <StatBox icon={<Calendar className="text-purple-500" />} title="Member Since" value="Jan 2024" desc="Account age: 5 months" />
             </div>
 
-            <button className="mt-4 w-full py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white text-xs font-medium transition-all">
-              Edit Profile
-            </button>
+            {/* Main Info Section */}
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                <h3 className="text-lg font-bold text-slate-900">Professional Information</h3>
+                <Settings size={20} className="text-slate-400 cursor-pointer hover:text-indigo-600 transition-colors" />
+              </div>
+              
+              <div className="p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">First Name</label>
+                    <p className="text-slate-900 font-medium mt-1 capitalize">{user.firstName}</p>
+                  </div>
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Last Name</label>
+                    <p className="text-slate-900 font-medium mt-1 capitalize">{user.lastName}</p>
+                  </div>
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Official Email</label>
+                    <p className="text-slate-900 font-medium mt-1">{user.email}</p>
+                  </div>
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Phone Number</label>
+                    <p className="text-slate-900 font-medium mt-1">{user.phoneNumber}</p>
+                  </div>
+                </div>
+
+                <div className="mt-10 p-6 rounded-2xl bg-indigo-50 border border-indigo-100">
+                  <div className="flex items-start gap-4">
+                    <div className="p-3 rounded-xl bg-white text-indigo-600 shadow-sm">
+                      <Star size={24} fill="currentColor" />
+                    </div>
+                    <div>
+                      <h4 className="text-indigo-900 font-bold">Premium Administrator Account</h4>
+                      <p className="text-indigo-700/70 text-sm mt-1">
+                        You have full access to the management console, user analytics, and system configurations.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Placeholder for additional content */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                  <h4 className="font-bold text-slate-900 mb-2">Recent Activity</h4>
+                  <p className="text-sm text-slate-500">Updated security settings 2 hours ago.</p>
+               </div>
+               <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                  <h4 className="font-bold text-slate-900 mb-2">Login Locations</h4>
+                  <p className="text-sm text-slate-500">Detected login from New York, USA.</p>
+               </div>
+            </div>
+
           </div>
         </div>
-
-        {/* Bottom Section */}
-        <div 
-          className="h-16 flex-shrink-0 rounded-[20px] px-4 py-2 flex items-center justify-between"
-          style={{ background: GLASS_CARD, border: BORDER }}
-        >
-          <div className="flex gap-6">
-            <div>
-              <p className="text-[9px] uppercase tracking-widest text-white/40 mb-0.5">Total Balance</p>
-              <p className="text-sm font-semibold text-white">$12,450.00</p>
-            </div>
-            <div className="w-px h-8 bg-white/10" />
-            <div>
-              <p className="text-[9px] uppercase tracking-widest text-white/40 mb-0.5">Joined Date</p>
-              <p className="text-sm font-semibold text-white">Jan 12, 2024</p>
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-             <button className="p-2 rounded-lg bg-white/5 border border-white/10 text-white/60 hover:text-white transition-colors">
-                <Settings size={14} />
-             </button>
-             <button className="px-4 py-2 rounded-lg bg-sky-500 text-[#0d0014] font-bold text-xs hover:scale-105 transition-transform">
-                Upgrade Plan
-             </button>
-          </div>
-        </div>
-
       </div>
-    </div>
     </div>
   );
 }
 
-// Sub-component for the 2x2 grid cards
-function StatCard({ icon, title, value, trend }: any) {
+function DetailRow({ icon, label, value }: { icon: any, label: string, value: string }) {
   return (
-    <div 
-      className="rounded-[16px] p-3 flex flex-col justify-between group hover:bg-white/5 transition-all"
-      style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)" }}
-    >
-      <div className="flex items-start justify-between">
-        <div className="p-2 rounded-xl bg-sky-500/10 text-sky-400">
+    <div className="flex items-center gap-4 text-left">
+      <div className="text-slate-400">{icon}</div>
+      <div>
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight leading-none mb-1">{label}</p>
+        <p className="text-sm font-semibold text-slate-700 leading-none">{value || "N/A"}</p>
+      </div>
+    </div>
+  );
+}
+
+function StatBox({ icon, title, value, desc }: any) {
+  return (
+    <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="p-2 rounded-lg bg-slate-50">
           {icon}
         </div>
-        <span className="text-[8px] font-bold text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded-md">
-          {trend}
-        </span>
+        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{title}</span>
       </div>
-      <div>
-        <p className="text-white/40 text-[9px] uppercase tracking-wider mb-0.5">{title}</p>
-        <p className="text-base font-semibold text-white">{value}</p>
-      </div>
-    </div>
-  );
-}
-
-// Sub-component for profile detail rows
-function ProfileDetail({ icon, text }: any) {
-  return (
-    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/5 text-white/70 text-[10px]">
-      <span className="text-sky-400/60">{icon}</span>
-      <span className="truncate">{text}</span>
+      <p className="text-2xl font-bold text-slate-900">{value}</p>
+      <p className="text-xs text-slate-500 mt-1">{desc}</p>
     </div>
   );
 }
