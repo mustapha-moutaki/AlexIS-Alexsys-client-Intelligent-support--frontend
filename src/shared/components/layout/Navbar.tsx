@@ -1,10 +1,12 @@
 "use client";
 
 import { Bell, Settings, User } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const BRAND = "#51C2DE";
 
 export default function Navbar() {
+  const router = useRouter();
   return (
     <header
       className="flex items-center justify-between w-full flex-shrink-0"
@@ -57,6 +59,7 @@ export default function Navbar() {
           className="flex items-center justify-center rounded-full transition-colors hover:bg-gray-100"
           style={{ width: 32, height: 32 }}
           aria-label="User account"
+          onClick={()=>router.push('/profile/me')}
         >
           <div
             className="rounded-full flex items-center justify-center"
