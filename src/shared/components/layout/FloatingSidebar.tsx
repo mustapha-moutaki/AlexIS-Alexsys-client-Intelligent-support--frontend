@@ -32,8 +32,6 @@ export default function FloatingSidebar({ isExpanded, setIsExpanded }: any) {
 const {mutate, isPending, error}=useLogout();
 if(error){
   toast.error(error.message);
-}else if(isPending){
-  toast.loading("Logging out...");
 }
   return (
     <aside
