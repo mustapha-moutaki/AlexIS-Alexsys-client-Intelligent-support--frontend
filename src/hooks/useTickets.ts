@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createTicket, deleteTicketByAdmin, getTicketById, getTickets, updateTicketAssignedToByAdmin, updateTicketByAdmin, updateTicketPriorityByAdmin, updateTicketStatusByAdmin } from "../features/auth/services/ticket-H-admin.service";
 import toast from "react-hot-toast";
+import { getAllTickets } from "../features/auth/services/ticket-H-Agent.service";
 
 
 
@@ -179,5 +180,23 @@ export const useAttachmentsByTicketId = (id:number)=>{
     return useQuery({
         queryKey: ["attachments", id],
         // queryFn: ()=>getAttachmentsByTicketId(id)
+    })
+}
+
+
+// get all tickets for agent with Optional filter by the status
+export const useTicketsByAgent = (status:string)=>{
+
+    const queryClient = useQueryClient();
+
+    return useQuery({
+        queryKey: ["tickets", status],
+        queryFn: () => getAllTickets(status),
+        staleTime: 1000 * 60 * 2, // 2 minutes fresh data
+        gcTime: 1000 * 60 * 10, // keep cached for 10 minutes (even if inactive)
+
+        // refetch configs 
+        refetchOnWindowFocus: true, // refetch when window regains focus
+        refetchOnReconnect: true // refetch when browser regains connection
     })
 }
