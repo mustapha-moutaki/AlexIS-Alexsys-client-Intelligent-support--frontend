@@ -21,14 +21,24 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const response = await login({ email, password })
-      console.log("Login success:", response.data)
-      saveToken(response.data.accessToken)
-      saveUser(response.data.user)
-     
-      setAuth(response.data.user, response.data.accessToken);
-      router.push("/dashboard");
-    } catch (err) {
+  const response = await login({ email, password })
+  console.log("Login success:", response.data)
+  saveToken(response.data.accessToken)
+  saveUser(response.data.user)
+ 
+  setAuth(response.data.user, response.data.accessToken);
+  
+  // Check the role here!
+  const userRole = response.data.user.role;
+  
+  if (userRole === "AGENT") {
+    alert("Agent dashboard");
+    router.push("/dashboard/agent/tickets"); // Or wherever your agent home is
+  } else {
+    alert("Admin dashboard");
+    router.push("/dashboard"); // Default admin dashboard
+  }
+}catch (err) {
       setError("Invalid email or password");
 
     } finally {
