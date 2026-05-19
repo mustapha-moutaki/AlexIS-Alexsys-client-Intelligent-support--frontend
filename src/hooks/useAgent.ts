@@ -8,7 +8,12 @@ export const useCreateAgent = ()=>{
 
     return useMutation({
         mutationFn: createAgent,
+        onSuccess:()=>{
+            toast.success("Agent created successfully")
+        },
+        onError:(err:any)=> toast.error("Failed to create Aegnt", err?.message)
     })
+    
 }
 
 export const useAgents = (enabled: boolean = true) => {
