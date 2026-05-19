@@ -33,7 +33,7 @@ api.interceptors.response.use(
 
         // check if the request is 401 and it is not a retry request means access token is expired
         if (
-            (error.response?.status === 401 || error.response?.status === 403) &&
+            error.response?.status === 401 &&
             !originalRequest._retry &&
             !isRefreshRequest
         ) {
@@ -62,8 +62,6 @@ api.interceptors.response.use(
                 // execute all the queued requests with the new token
                 failedQueue.forEach((cb) => cb());
                 failedQueue = [];
-
-                return api(originalRequest);
             } catch (err) {
                 removeToken();
                 window.location.href = "/login";
@@ -71,6 +69,24 @@ api.interceptors.response.use(
             } finally {
                 isRefreshing = false;
             }
+
+            return api(originalRequest);
+        }
+
+         // =========================
+        // GLOBAL ERROR HANDLING
+        // =========================
+
+        if (error.response?.status === 404) {
+            window.location.href = "/404";
+        }
+
+        if (error.response?.status === 500) {
+            window.location.href = "/500";
+        }
+
+        if (error.response?.status === 403) {
+            window.location.href = "/unauthorized";
         }
 
         return Promise.reject(error);
