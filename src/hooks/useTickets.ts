@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createTicket, deleteTicketByAdmin, getTicketById, getTickets, updateTicketAssignedToByAdmin, updateTicketByAdmin, updateTicketPriorityByAdmin, updateTicketStatusByAdmin } from "../features/auth/services/ticket-H-admin.service";
 import toast from "react-hot-toast";
-import { getAllTickets } from "../features/auth/services/ticket-H-Agent.service";
+import { getAllTickets, getTicketByIdForAgent, updateTicketStatusAgent } from "../features/auth/services/ticket-H-Agent.service";
 
 
 
@@ -118,6 +118,31 @@ export const useUpdateTicketStatusByAdmin = () => {
     });
 };
 
+export const useUpdateTicketStatusAgent = () => {
+    const queryClient = useQueryClient();
+    
+    return useMutation({
+        mutationFn: (id:number) => 
+            updateTicketStatusAgent(id),
+            
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["tickets"] });
+            toast.success("Status updated successfully");
+        },
+        
+        onError: (error: any) => {
+            const errorMessage =
+                error?.response?.data?.message ||
+                "Failed to update status";
+            
+            console.log(errorMessage);
+            toast.error(errorMessage);
+        }
+    });
+};
+
+
+
 // update ticket priority by admin
 export const useUpdateTicketPriorityByAdmin = () => {
     const queryClient = useQueryClient();
@@ -185,18 +210,28 @@ export const useAttachmentsByTicketId = (id:number)=>{
 
 
 // get all tickets for agent with Optional filter by the status
-export const useTicketsByAgent = (status:string)=>{
-
-    const queryClient = useQueryClient();
+export const useTicketsByAgent = (status: string) => {
 
     return useQuery({
         queryKey: ["tickets", status],
-        queryFn: () => getAllTickets(status),
-        staleTime: 1000 * 60 * 2, // 2 minutes fresh data
-        gcTime: 1000 * 60 * 10, // keep cached for 10 minutes (even if inactive)
 
-        // refetch configs 
-        refetchOnWindowFocus: true, // refetch when window regains focus
-        refetchOnReconnect: true // refetch when browser regains connection
+        queryFn: () => getAllTickets(status),
+
+        staleTime: 1000 * 60 * 2,
+        gcTime: 1000 * 60 * 10,
+
+        refetchOnWindowFocus: true,
+        refetchOnReconnect: true,
+        refetchOnMount: true,
+
+        placeholderData: (previousData) => previousData,
+    });
+};
+
+// get ticket details for agent by ticket id
+export const useTicketByIdForAgent = (id: number) => {
+    return useQuery({
+        queryKey: ["ticket", id],
+        queryFn: () => getTicketByIdForAgent(id)
     })
 }
