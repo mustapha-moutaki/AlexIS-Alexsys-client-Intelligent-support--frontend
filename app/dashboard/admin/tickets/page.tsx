@@ -75,10 +75,8 @@ export default function AdminTicketsPage() {
     if (!statusUpdateData) return;
     updateStatusMutation({ id: statusUpdateData.id, status: newStatus }, {
       onSuccess: () => {
-        toast.success("Status updated successfully");
         setStatusUpdateData(null);
-      },
-      onError: () => toast.error("Failed to update status")
+      }
     });
   };
 
@@ -96,7 +94,6 @@ export default function AdminTicketsPage() {
     if (!assignedUpdateData) return;
     updateAgentMutation({ id: assignedUpdateData.id, assignedToId: newAgentId }, {
       onSuccess: () => {
-        toast.success("Agent updated successfully");
         setAssignedUpdateData(null);
       }
     });
