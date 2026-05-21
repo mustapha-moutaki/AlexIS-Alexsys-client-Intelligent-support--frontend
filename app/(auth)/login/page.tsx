@@ -32,10 +32,10 @@ export default function LoginPage() {
   const userRole = response.data.user.role;
   
   if (userRole === "AGENT") {
-    alert("Agent dashboard");
+    console.log("Agent dashboard");
     router.push("/dashboard/agent/tickets"); // Or wherever your agent home is
   } else {
-    alert("Admin dashboard");
+    console.log("Admin dashboard");
     router.push("/dashboard"); // Default admin dashboard
   }
 }catch (err) {
