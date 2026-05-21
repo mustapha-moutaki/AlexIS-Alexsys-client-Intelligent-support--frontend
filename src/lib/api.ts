@@ -77,16 +77,24 @@ api.interceptors.response.use(
         // GLOBAL ERROR HANDLING
         // =========================
 
-        if (error.response?.status === 404) {
-            window.location.href = "/404";
-        }
+        if (!isRefreshRequest) {
+            // If we get a 401 and it wasn't caught by the refresh logic (e.g., retry failed), force logout
+            if (error.response?.status === 401) {
+                removeToken();
+                window.location.href = "/login";
+            }
 
-        if (error.response?.status === 500) {
-            window.location.href = "/500";
-        }
+            // if (error.response?.status === 404) {
+            //     window.location.href = "/404";
+            // }
 
-        if (error.response?.status === 403) {
-            window.location.href = "/unauthorized";
+            // if (error.response?.status >= 500) {
+            //     window.location.href = "/500";
+            // }
+
+            if ((error.response?.status) === 403) {
+                window.location.href = "/403";
+            }
         }
 
         return Promise.reject(error);
