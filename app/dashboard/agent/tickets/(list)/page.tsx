@@ -13,19 +13,26 @@ import {
   Settings2,
   MessageSquare,
   Paperclip,
-  Tag
+  Tag,
+  PencilLineIcon,
+  Pencil
 } from "lucide-react";
 import { ticketStatus } from "@/src/shared/constants/ticketStatus";
-import { useTicketsByAgent } from "@/src/hooks/useTickets";
+import { useTicketsByAgent, useUpdateTicketStatusAgent, useUpdateTicketStatusByAdmin } from "@/src/hooks/useTickets";
+import { useRouter } from "next/navigation";
+import { Select } from "radix-ui";
+import toast from "react-hot-toast";
+import SimpleSpinner from "@/components/ui/SimpleSpinner";
 
 export default function AgentTicketsPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isEditStatusModalOpen, setIsEditStatusModalOpen] = useState(false);
 
   // 1. Pass the statusFilter state to the hook. 
   // Based on your service code, "" will trigger the 'else' (no params) block.
-  const { data: tickets = [], isLoading, refetch } = useTicketsByAgent(statusFilter);
-
+  const { data: tickets = [], isPending, refetch } = useTicketsByAgent(statusFilter);
+ const router = useRouter();
   // 2. Fixed useMemo to use the correct variable "tickets"
   const filteredTickets = useMemo(() => {
     return tickets.filter((ticket: any) => {
@@ -35,6 +42,17 @@ export default function AgentTicketsPage() {
       return idStr.includes(searchStr) || titleStr.includes(searchStr);
     });
   }, [tickets, searchQuery]);
+
+
+  const {mutate, isPending:isResolvingTicket} = useUpdateTicketStatusAgent();
+  
+  const resolvedTicket=(ticketId:number)=>{
+    mutate(ticketId);
+
+  }
+    
+  
+
 
   // --- Helpers ---
   const getStatusStyle = (status: string) => {
@@ -58,10 +76,10 @@ export default function AgentTicketsPage() {
         </div>
         <button 
           onClick={() => refetch()}
-          disabled={isLoading}
+          disabled={isPending}
           className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-600 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 transition shadow-sm disabled:opacity-50"
         >
-          <RefreshCcw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+          <RefreshCcw className={`w-4 h-4 ${isPending ? 'animate-spin' : ''}`} />
           Refresh
         </button>
       </div>
@@ -111,7 +129,7 @@ export default function AgentTicketsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {isLoading ? (
+              {isPending ? (
                 <tr>
                    <td colSpan={5} className="px-6 py-10 text-center text-slate-400">Loading tickets...</td>
                 </tr>
@@ -133,10 +151,22 @@ export default function AgentTicketsPage() {
                         <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-tight">{ticket.priority}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 flex items-center gap-2">
                       <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase border ${getStatusStyle(ticket.status)}`}>
                         {ticket.status}
                       </span>
+                     {
+                      !isResolvingTicket ?(
+                      ticket.status === "IN_PROGRESS" && (
+                      <Pencil className="w-4 h-4 text-slate-400 cursor-pointer" 
+                      onClick={()=>resolvedTicket(ticket.id)}/>
+                      )
+                      ):(
+                        <SimpleSpinner />
+                      )
+                      
+                     }
+                      
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4 text-slate-400">
@@ -153,7 +183,7 @@ export default function AgentTicketsPage() {
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button 
-                          onClick={() => console.log("View", ticket.id)}
+                          onClick={() => router.push(`/dashboard/agent/tickets/${ticket.id}`)}
                           className="p-2 bg-slate-50 hover:bg-indigo-50 text-slate-500 hover:text-indigo-600 rounded-lg border border-slate-100 transition shadow-sm"
                         >
                           <Eye className="w-4 h-4" />
