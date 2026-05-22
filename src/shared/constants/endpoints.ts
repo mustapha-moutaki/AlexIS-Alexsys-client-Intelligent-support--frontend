@@ -8,7 +8,7 @@ export const DASHBOARD_ENDPOINTS = {
   },
 
   CLIENT: {
-    OVERVIEW: "dashboard/client/overview",
+    OVERVIEW: "dashboard/client/statistics/summary",
   },
 
   AGENT: {
