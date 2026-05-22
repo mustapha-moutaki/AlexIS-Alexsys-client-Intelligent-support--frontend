@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createClient, deleteClient, getClientById, getClients, updateClient } from "../features/auth/services/client.service";
+import { createClient, deleteClient, getClientById, getClients, getClientTickets, updateClient } from "../features/auth/services/client.service";
 import toast from "react-hot-toast";
 import { ClientEditRequest } from "../types/ClientEditRequest";
 
@@ -105,5 +105,15 @@ export const useDeleteClient = ()=>{
             toast.dismiss();
             toast.error("Failed to delete client");
         }   
+    })
+}
+
+
+// client hooks
+
+export const useClientTickets = (page?:{page:number; size:number})=>{
+    return useQuery({
+        queryKey: ["client-tickets", page],
+        queryFn: () => getClientTickets(page)
     })
 }
