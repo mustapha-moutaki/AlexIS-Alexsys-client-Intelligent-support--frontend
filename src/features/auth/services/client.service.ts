@@ -4,9 +4,10 @@ import { Client } from "@/src/types/Client";
 import { ClientCreateRequest } from "@/src/types/ClientCreateRequest";
 import { ClientEditProfile } from "@/src/types/ClientEditProfile";
 import { ClientEditRequest } from "@/src/types/ClientEditRequest";
+import { MyTicketSummaryResponse } from "@/src/types/MyTicketSummaryResponse";
 
-const CLIENTENDPOINT = "/admin/clients";
-
+const ADMINENDPOINT = "/admin/clients";
+const CLIENTENDPOINT = "/client/tickets";
 
 type Params = {
     page?:number;
@@ -31,7 +32,7 @@ export const createClient = async (data: ClientCreateRequest) => {
         formData.append("profilePicture", data.profilePicture);
     }
     
-        const res = await api.post(`${CLIENTENDPOINT}`, formData,{
+        const res = await api.post(`${ADMINENDPOINT}`, formData,{
             headers:{
                 "Content-Type":"multipart/form-data",
             }
@@ -41,7 +42,7 @@ export const createClient = async (data: ClientCreateRequest) => {
 }
 
 export const getClients = async(params?: Params)=>{
-    const res = await api.get<ApiResponse<Client[]>>(`${CLIENTENDPOINT}`, {
+    const res = await api.get<ApiResponse<Client[]>>(`${ADMINENDPOINT}`, {
         params:{
             page:params?.page || 0,
             size:params?.size || 10,
@@ -56,13 +57,13 @@ export const getClients = async(params?: Params)=>{
 }
 
 export const getClientById = async (id: string) => {
-    const res = await api.get<ApiResponse<Client>>(`${CLIENTENDPOINT}/${id}`);
+    const res = await api.get<ApiResponse<Client>>(`${ADMINENDPOINT}/${id}`);
     return res.data.data;
 }
 
 export const updateClient = async (id: string, data: ClientEditRequest) => {
 
-    const res = await api.patch(`${CLIENTENDPOINT}/${id}`,data);
+    const res = await api.patch(`${ADMINENDPOINT}/${id}`,data);
     return res.data.data;
 }
 
@@ -76,13 +77,31 @@ export const updateProfile = async(id:any, data: ClientEditProfile)=>{
     if(data.profilePicture){
         formData.append("profilePicture", data.profilePicture);
     }
-    const res = await api.patch(`${CLIENTENDPOINT}/profile/${id}`,data);
+    const res = await api.patch(`${ADMINENDPOINT}/profile/${id}`,data);
     return res.data.data;
 }
 
 
 
 export const deleteClient = async(id:string)=>{
-    const res = await api.delete(`${CLIENTENDPOINT}/${id}`);
+    const res = await api.delete(`${ADMINENDPOINT}/${id}`);
+    return res.data.data;
+}
+
+
+// client service
+
+type GetTicketWithPagination = {
+    page?:number;
+    size?:number;
+}
+
+export const getClientTickets = async (params?: GetTicketWithPagination) =>{
+    const res = await api.get<ApiResponse<MyTicketSummaryResponse[]>>(CLIENTENDPOINT,{
+        params:{
+            page:params?.page || 0,
+            size:params?.size || 10,
+        }
+    });
     return res.data.data;
 }
