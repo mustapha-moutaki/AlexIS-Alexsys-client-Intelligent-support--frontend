@@ -4,35 +4,48 @@ import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutGrid, Users, BarChart3, Settings,
-  LogOut, ChevronRight,Tags , Ticket
+  LogOut, ChevronRight, Tags, Ticket
 } from "lucide-react";
 import LogoAlexIs from "../ui/LogoAlexIs";
 import { useLogout } from "@/src/hooks/useAuth";
 import toast from "react-hot-toast";
+import useAuthStore from "@/src/store/authStore";
 
+// 1. Added 'roles' property to define who can see what
 const navItems = [
-  { id: "dash",    label: "Dashboard",  icon: LayoutGrid, path: "/dashboard" },
-  { id: "users",   label: "Users",      icon: Users,      path: "/dashboard/users" },
-    { id: "tickets", label: "Manage Tickets", icon: Ticket, path: "/dashboard/admin/tickets" },
-{ id: "categories", label: "Categories", icon: Tags, path: "/dashboard/categories" },
-  { id: "stats",   label: "Statistics", icon: BarChart3,  path: "/stats" },
-  { id: "settings",label: "Settings",   icon: Settings,   path: "/settings" },
+  { id: "dash", label: "Dashboard", icon: LayoutGrid, path: "/dashboard", roles: ["ADMIN"] },
+  { id: "dash-agent", label: "Dashboard", icon: LayoutGrid, path: "/dashboard/agent/overview", roles: ["AGENT"] },
+  { id: "users", label: "Users", icon: Users, path: "/dashboard/users", roles: ["ADMIN"] },
+  { id: "tickets", label: "Manage Tickets", icon: Ticket, path: "/dashboard/admin/tickets", roles: ["ADMIN"] },
+  { id: "user-tickets", label: "My Tickets", icon: Ticket, path: "/dashboard/agent/tickets", roles: ["AGENT"] },
+  { id: "categories", label: "Categories", icon: Tags, path: "/dashboard/categories", roles: ["ADMIN"] },
+  { id: "stats", label: "Statistics", icon: BarChart3, path: "/stats", roles: ["ADMIN"] },
+  { id: "settings", label: "Settings", icon: Settings, path: "/settings" },
 ];
 
 const BRAND = "#51C2DE";
 const BRAND_TINT = "rgba(81,194,222,0.09)";
 const BRAND_BORDER = "rgba(81,194,222,0.22)";
 
-
-
 export default function FloatingSidebar({ isExpanded, setIsExpanded }: any) {
   const router = useRouter();
   const pathname = usePathname();
-    // handle logout
-const {mutate, isPending, error}=useLogout();
-if(error){
-  toast.error(error.message);
-}
+  const user = useAuthStore((state) => state.user);
+
+  // 2. Filter the nav items based on the logged-in user's role
+  const filteredNavItems = navItems.filter((item) => {
+    // If no roles are defined for the item, it's public for all logged-in users
+    if (!item.roles) return true;
+    // Check if user's role matches one of the allowed roles
+    return item.roles.includes(user?.role);
+  });
+
+  // handle logout
+  const { mutate, isPending, error } = useLogout();
+  if (error) {
+    toast.error(error.message);
+  }
+
   return (
     <aside
       className="fixed left-0 top-0 h-screen z-50 flex flex-col transition-all duration-300"
@@ -48,12 +61,11 @@ if(error){
         className="flex items-center h-14 px-3 flex-shrink-0"
         style={{ borderBottom: "1px solid #E5E7EB" }}
       >
-        {/* Logo mark */}
         <div
           className="flex-shrink-0 flex items-center justify-center rounded-md"
           style={{ width: 30, height: 30, background: BRAND_TINT, border: `1px solid transparent` }}
         >
-          <LogoAlexIs/>
+          <LogoAlexIs />
         </div>
 
         <AnimatePresence>
@@ -71,7 +83,6 @@ if(error){
           )}
         </AnimatePresence>
 
-        {/* Collapse toggle — push to right end when expanded */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           className="ml-auto flex items-center justify-center rounded-md transition-colors hover:bg-gray-100"
@@ -86,7 +97,8 @@ if(error){
 
       {/* Nav items */}
       <nav className="flex flex-col gap-0.5 flex-1 p-2 overflow-y-auto hide-scrollbar">
-        {navItems.map(({ id, label, icon: Icon, path }) => {
+        {/* 3. Map over the filteredNavItems instead of original navItems */}
+        {filteredNavItems.map(({ id, label, icon: Icon, path }) => {
           const isActive = pathname === path || (path !== "/dashboard" && pathname.startsWith(path));
           return (
             <button
@@ -104,7 +116,6 @@ if(error){
               }}
               title={!isExpanded ? label : undefined}
             >
-              {/* Active left indicator */}
               {isActive && (
                 <div
                   className="absolute left-0 top-1/2 -translate-y-1/2 rounded-r-full"
@@ -145,10 +156,9 @@ if(error){
           className="flex items-center rounded-md transition-colors hover:bg-red-50 cursor-pointer"
           style={{ height: 36, padding: "0 8px", width: "100%", color: "#EF4444" }}
           title={!isExpanded ? "Logout" : undefined}
+          onClick={() => mutate()}
         >
-          <span className="flex-shrink-0 flex items-center justify-center"
-           onClick={()=>mutate()}
-           style={{ width: 20 }}>
+          <span className="flex-shrink-0 flex items-center justify-center" style={{ width: 20 }}>
             <LogOut size={15} strokeWidth={1.7} />
           </span>
           <AnimatePresence>
