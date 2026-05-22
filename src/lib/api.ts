@@ -92,9 +92,9 @@ api.interceptors.response.use(
             //     window.location.href = "/500";
             // }
 
-            if ((error.response?.status) === 403) {
-                window.location.href = "/login";
-            }
+            // if ((error.response?.status) === 403) {
+                //  window.location.href = "/login";
+            // }
         }
 
         return Promise.reject(error);
