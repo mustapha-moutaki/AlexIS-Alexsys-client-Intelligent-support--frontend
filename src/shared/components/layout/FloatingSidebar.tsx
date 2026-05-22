@@ -15,9 +15,11 @@ import useAuthStore from "@/src/store/authStore";
 const navItems = [
   { id: "dash", label: "Dashboard", icon: LayoutGrid, path: "/dashboard", roles: ["ADMIN"] },
   { id: "dash-agent", label: "Dashboard", icon: LayoutGrid, path: "/dashboard/agent/overview", roles: ["AGENT"] },
+    { id: "dash-client", label: "Dashboard", icon: LayoutGrid, path: "/dashboard/client/overview", roles: ["CLIENT"] },
   { id: "users", label: "Users", icon: Users, path: "/dashboard/users", roles: ["ADMIN"] },
   { id: "tickets", label: "Manage Tickets", icon: Ticket, path: "/dashboard/admin/tickets", roles: ["ADMIN"] },
   { id: "user-tickets", label: "My Tickets", icon: Ticket, path: "/dashboard/agent/tickets", roles: ["AGENT"] },
+    { id: "client-tickets", label: "My Tickets", icon: Ticket, path: "/dashboard/client/tickets", roles: ["CLIENT"] },
   { id: "categories", label: "Categories", icon: Tags, path: "/dashboard/categories", roles: ["ADMIN"] },
   { id: "stats", label: "Statistics", icon: BarChart3, path: "/stats", roles: ["ADMIN"] },
   { id: "settings", label: "Settings", icon: Settings, path: "/settings" },
