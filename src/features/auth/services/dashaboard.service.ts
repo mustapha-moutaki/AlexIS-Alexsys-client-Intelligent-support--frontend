@@ -48,8 +48,14 @@ export const getClientDashboardOverview = async ()=>{
 }
 
 
-// stats for graphs
+// stats for graphs for admin dashboard
 export const getStatsForGraphs = async()=>{
     const res = await api.get<ApiResponse<any>>("/dashboard/graphs/stats");
+    return res.data.data;
+}
+
+// stats for agent
+export const getStatsForAgentDashboard = async()=>{
+    const res = await api.get<ApiResponse<any>>(DASHBOARD_ENDPOINTS.AGENTDASHBOARD.OVERVIEW);
     return res.data.data;
 }
