@@ -14,4 +14,8 @@ export const DASHBOARD_ENDPOINTS = {
   AGENT: {
     OVERVIEW: "dashboard/agent/overview",
   },
+  AGENTDASHBOARD:{
+    OVERVIEW:"dashboard/agent/stats/summary",
+    
+  }
 };
