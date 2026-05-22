@@ -34,6 +34,9 @@ export default function LoginPage() {
   if (userRole === "AGENT") {
     console.log("Agent dashboard");
     router.push("/dashboard/agent/overview"); // Or wherever your agent home is
+  } else if (userRole === "CLIENT") {
+    console.log("Client dashboard");
+    router.push("/dashboard/client/overview"); // Or wherever your client home is
   } else {
     console.log("Admin dashboard");
     router.push("/dashboard"); // Default admin dashboard
