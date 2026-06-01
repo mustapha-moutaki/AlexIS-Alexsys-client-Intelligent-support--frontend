@@ -2,8 +2,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createTicket, deleteTicketByAdmin, getTicketById, getTickets, updateTicketAssignedToByAdmin, updateTicketByAdmin, updateTicketPriorityByAdmin, updateTicketStatusByAdmin } from "../features/auth/services/ticket-H-admin.service";
 import toast from "react-hot-toast";
 import { getAllTickets, getTicketByIdForAgent, updateTicketStatusAgent } from "../features/auth/services/ticket-H-Agent.service";
-import { createTicketByClient } from "../features/auth/services/ticket-H-client.service";
+import { createTicketByClient, getClientTicketById, updateClientTicket } from "../features/auth/services/ticket-H-client.service";
 import { CreateClientTicketPayload } from "../types/CreateClientTicketPayload";
+import { UpdateClientTicketPayload } from "../types/UpdateClientTicketPayload";
 
 
 
@@ -252,6 +253,35 @@ export const useCreateTicketByClient = () => {
             const errorMessage =
                 error?.response?.data?.message ||
                 "Failed to create ticket";
+            
+            console.log(errorMessage);
+            toast.error(errorMessage);
+        }
+    });
+};
+
+// get ticket details for the client by the ticket id
+export const useClientGetTicketById = ( id: number) =>{
+    return useQuery({
+        queryKey: ["client-ticket", id],
+        queryFn: () => getClientTicketById(id)
+    })
+}
+
+// client update his own ticket
+export const useUpdateClientTicket = () => {
+    const queryClient = useQueryClient();
+    
+    return useMutation({
+        mutationFn: ({id, ticket}: {id: number, ticket: UpdateClientTicketPayload}) => updateClientTicket(id, ticket),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["client-ticket"] });
+            toast.success("Ticket updated successfully");
+        },
+        onError: (error: any) => {
+            const errorMessage =
+                error?.response?.data?.message ||
+                "Failed to update ticket";
             
             console.log(errorMessage);
             toast.error(errorMessage);
