@@ -12,7 +12,8 @@ import {
   Tag, 
   ChevronLeft, 
   ChevronRight,
-  Plus
+  Plus,
+  Edit
 } from "lucide-react";
 import { useClientTickets } from "@/src/hooks/useClient";
 import { useRouter } from "next/navigation";
@@ -178,7 +179,13 @@ export default function ClientTicketsPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-right flex gap-2 justify-end">
+                      <button 
+                          onClick={() => router.push(`/dashboard/client/tickets/${ticket.id}/edit`)}
+                          className="p-2 bg-slate-50 hover:bg-indigo-50 text-slate-500 hover:text-indigo-600 rounded-lg border border-slate-100 transition shadow-sm"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
                         <button 
                           onClick={() => router.push(`/dashboard/client/tickets/${ticket.id}`)}
                           className="p-2 bg-slate-50 hover:bg-indigo-50 text-slate-500 hover:text-indigo-600 rounded-lg border border-slate-100 transition shadow-sm"
