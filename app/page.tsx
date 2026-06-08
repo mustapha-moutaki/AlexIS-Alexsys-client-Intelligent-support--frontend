@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import FloatingLines from "@/components/BackgroundAnimatedHome";
 import MagicBento from '@/components/MagicBento'
 import SupportAvatar from "@/components/SupportAvatar";
@@ -8,6 +8,10 @@ import RotatingText from '@/src/shared/components/ui/RotatingText';
 import LogoLoop from '@/components/LogoLoop';
 import { SiReact, SiNextdotjs, SiTypescript, SiTailwindcss } from 'react-icons/si';
 import "./globals.css"; 
+import { useRouter } from "next/navigation";
+import useAuthStore from "@/src/store/authStore";
+import Link from "next/link";
+// import { Link } from "lucide-react";
 
 const techLogos = [
   { node: <SiReact />, title: "React", href: "https://react.dev" },
@@ -154,6 +158,20 @@ const AnimatedLogo = () => (
 );
 
 export default function Home() {
+  const [userExist, setUserExist] = useState(false);
+  const user = useAuthStore((state) => state.user);
+  const userRole = user?.role;
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (user || token) {
+      setUserExist(true);
+    }
+  }, [user]);
+
+  const router = useRouter();
+  const handleLoginClick = () => {
+    router.push('/login');
+  }
   return (
     <div className="bg-[#1e0a2e] text-white overflow-x-hidden font-sans">
       <style jsx global>{`
@@ -217,9 +235,36 @@ export default function Home() {
           <button className="px-4 py-2 text-[13px] font-medium text-white border border-white/20 rounded-lg hover:border-[#52C1DE]/50 transition-colors hidden sm:block">
             Request a Demo
           </button>
-          <button className="px-4 py-2 text-[13px] font-semibold bg-[#52C1DE] text-[#1e0a2e] rounded-lg hover:bg-[#7ed4e8] transition-colors">
-            Get Started
+          {
+            !userExist ? (
+              <button onClick={handleLoginClick} className="px-4 py-2 text-[13px] font-semibold bg-[#52C1DE] text-[#1e0a2e] rounded-lg hover:bg-[#7ed4e8] transition-colors">
+            Login
           </button>
+            ):(
+              
+                userRole === 'ADMIN' ? (
+                  <Link href="/dashboard">
+                    <button className="px-4 py-2 text-[13px] font-semibold bg-[#52C1DE] text-[#1e0a2e] rounded-lg hover:bg-[#7ed4e8] transition-colors">
+                      Dashboard
+                    </button>
+                  </Link>
+                ) : userRole === 'CLIENT' ? (
+                  <Link href="/dashboard/client/overview">
+                    <button className="px-4 py-2 text-[13px] font-semibold bg-[#52C1DE] text-[#1e0a2e] rounded-lg hover:bg-[#7ed4e8] transition-colors">
+                      Dashboard
+                    </button>
+                  </Link>
+                ):(
+                   <Link href="/dashboard/agent/overview">
+                    <button className="px-4 py-2 text-[13px] font-semibold bg-[#52C1DE] text-[#1e0a2e] rounded-lg hover:bg-[#7ed4e8] transition-colors">
+                      Dashboard
+                    </button>
+                  </Link>
+                )
+              
+            )
+          }
+          
         </div>
       </nav>
 
