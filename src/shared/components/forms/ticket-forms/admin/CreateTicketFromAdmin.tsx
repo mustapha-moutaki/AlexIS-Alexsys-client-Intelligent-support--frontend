@@ -32,7 +32,7 @@ interface TicketFormData {
   issueType: string;
   categoryId: string;
   clientId: string;
-  assignedToId?: string;
+  assignedToId?: string; // optional
 }
 
 export interface CreateTicketFormPayload {
