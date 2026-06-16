@@ -26,7 +26,7 @@ interface TicketFormData {
   issueType: string;
   categoryId: string;
   clientId: string;
-  assignedToId: string;
+  assignedToId?: string;
 }
 
 // handle create ticket request
