@@ -29,12 +29,14 @@ export default function UserEditPage() {
 function AgentPage({ id }: { id: string }) {
   const { data, isLoading } = useAgentById(id);
   if (isLoading) return <SimpleSpinner />;
+  if (!data) return <div>Agent not found</div>;
   return <AgentEditForm user={data} />;
 }
 
 function ClientPage({ id }: { id: string }) {
   const { data, isLoading } = useClientById(id);
   if (isLoading) return <SimpleSpinner />;
+  if (!data) return <div>Client not found</div>;
   console.log("client page data",data);
   return <ClientEditForm client={data} />;
 }

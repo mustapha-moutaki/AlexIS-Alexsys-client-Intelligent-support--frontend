@@ -54,7 +54,7 @@ export default function EditTicketPage() {
         <div className="max-w-4xl">
           <EditTicketFormClient
             ticket={ticket}
-            categories={categories?.content || []}
+            categories={categories || []}
             handleUpdate={handleUpdate}
             isUpdating={isUpdating}
           />

@@ -123,7 +123,7 @@ export default function AdminTicketsPage() {
 
         {/* Dashboard Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard icon={Ticket} color="bg-indigo-500" label="Total Tickets" value={data?.totalElements || 0} sub="All time" />
+          <StatCard icon={Ticket} color="bg-indigo-500" label="Total Tickets" value={(data as any)?.totalElements || 0} sub="All time" />
           <StatCard icon={AlertCircle} color="bg-emerald-500" label="Open" value={800} sub="Needs attention" />
           <StatCard icon={Clock} color="bg-orange-500" label="In Progress" value={400} sub="Being handled" />
           <StatCard icon={CheckCircle2} color="bg-blue-500" label="Closed" value={200} sub="Resolved" />
@@ -186,7 +186,7 @@ export default function AdminTicketsPage() {
           onClose={() => setAssignedUpdateData(null)}
           onConfirm={handleUpdateAgent}
           isLoading={false}
-          agents={agentsList?.content}
+          agents={(agentsList as any)?.content ?? agentsList}
         />
       )}
     </div>

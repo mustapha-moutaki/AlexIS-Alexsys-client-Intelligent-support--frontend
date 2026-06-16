@@ -59,9 +59,9 @@ export default function EditTicketPage(){
         <EditTicketFormAdmin
          ticket = {ticket}
          isPending = {isPending}
-         categories={categories?.content || []}
-         clients={clients?.content || []}
-         agents={agents?.content || []}
+         categories={categories || []}
+         clients={clients || []}
+         agents={agents || []}
         handleUpdate={handleUpdate}
         isUpdating={isUpdating}
           />

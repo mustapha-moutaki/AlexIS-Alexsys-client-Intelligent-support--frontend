@@ -55,7 +55,7 @@ export default function CategoriesPage() {
                 </div>
             </div>
             {/* Pass categories with a fallback to empty array */}
-            <CategoriesList categories={categories?.content || []} />
+            <CategoriesList categories={categories || []} />
         </main>
     );
 }

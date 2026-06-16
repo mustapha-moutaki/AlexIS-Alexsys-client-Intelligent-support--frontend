@@ -5,7 +5,7 @@ import {
   Layers, Users, User, Save, Loader2, AlertCircle 
 } from "lucide-react";
 import { Category } from "@/src/types/Category";
-import { TicketResponse } from "@/src/types/TicketResponse";
+import { TicketDetailsResponse } from "@/src/types/TicketDetailsResponse";
 import { User as UserType } from "@/src/types/User";
 import { ticketStatus } from "@/src/shared/constants/ticketStatus";
 import {priorities} from "@/src/shared/constants/priority";
@@ -15,12 +15,12 @@ import { Agent } from "@/src/types/Agent";
 
 
 interface EditProps {
-  ticket: TicketResponse;
+  ticket: TicketDetailsResponse;
   categories: Category[];
   clients: UserType[];
   agents: Agent[];
   isPending: boolean;
-  handleUpdate: (formData: TicketEdit) => void;
+  handleUpdate: (formData: any) => void;
   isUpdating: boolean;
 }
 
@@ -32,9 +32,9 @@ export default function EditTicketFormAdmin({ ticket, categories, clients, agent
     status: ticket.status,
     priority: ticket.priority,
     issueType: ticket.issueType,
-    categoryId: ticket.category?.id || "",
-    clientId: ticket.clientId || "",
-    assignedToId: ticket.assignedToId || "",
+    categoryId: ticket.category?.id?.toString() || "",
+    clientId: ticket.clientId?.toString() || "",
+    assignedToId: ticket.assignedToId?.toString() || "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
