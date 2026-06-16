@@ -42,50 +42,50 @@ const isPending = isCreatingTicket || isProcessing;
   const handleCreate = async (payload: CreateTicketFormPayload) => {
   const { formData, commentText, files } = payload;
 
-  try {
-    setIsProcessing(true);
+ try {
+  setIsProcessing(true);
 
-    // --- FIX START: Clean the payload ---
-    const cleanedFormData = { ...formData };
-    
-    // If assignedToId is empty string, null, or undefined, remove it from the body
-    if (!cleanedFormData.assignedToId) {
-      delete cleanedFormData.assignedToId;
+  // --- FIX START: Clean the payload properly ---
+  const { assignedToId, ...rest } = formData;
+
+  const cleanedFormData = {
+    ...rest,
+    ...(assignedToId ? { assignedToId } : {}),
+  };
+  // --- FIX END ---
+
+  // 1. Use cleanedFormData instead of formData
+  const createdTicket = await mutateAsync(cleanedFormData);
+
+  if (!createdTicket?.id) {
+    throw new Error("Ticket created but no ID returned");
+  }
+
+  // 2. Upload files
+  if (files.length > 0) {
+    try {
+      await Promise.all(
+        files.map((file) => createAttachment(file, createdTicket.id))
+      );
+    } catch {
+      toast.error("Ticket created, but some attachments could not be uploaded.");
     }
-    // --- FIX END ---
+  }
 
-    // 1. Use cleanedFormData instead of formData
-    const createdTicket = await mutateAsync(cleanedFormData);
-
-    if (!createdTicket?.id) {
-      throw new Error("Ticket created but no ID returned");
+  // 3. Create comment
+  if (commentText.trim()) {
+    try {
+      await createComment({
+        ticketId: createdTicket.id,
+        content: commentText.trim(),
+      });
+    } catch {
+      toast.error("Ticket created, but the comment could not be added.");
     }
+  }
 
-    // 2. Upload files
-    if (files.length > 0) {
-      try {
-        await Promise.all(
-          files.map((file) => createAttachment(file, createdTicket.id))
-        );
-      } catch {
-        toast.error("Ticket created, but some attachments could not be uploaded.");
-      }
-    }
-
-    // 3. Create comment
-    if (commentText.trim()) {
-      try {
-        await createComment({
-          ticketId: createdTicket.id,
-          content: commentText.trim(),
-        });
-      } catch {
-        toast.error("Ticket created, but the comment could not be added.");
-      }
-    }
-
-    router.push("/dashboard/admin/tickets");
-  } catch (error) {
+  router.push("/dashboard/admin/tickets");
+} catch (error) {
     console.error("Error creating ticket:", error);
   } finally {
     setIsProcessing(false);
