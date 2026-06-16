@@ -12,6 +12,7 @@ import { createAttachment } from "@/src/features/auth/services/attachment.servic
 import { createComment } from "@/src/features/auth/services/comment.service";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import type { TicketFormData as CanonicalTicketFormData } from "@/src/types/TicketFormData";
 
 export default function CreateTicketPage() {
 
@@ -55,7 +56,7 @@ const isPending = isCreatingTicket || isProcessing;
     // --- FIX END ---
 
     // 1. Use cleanedFormData instead of formData
-    const createdTicket = await mutateAsync(cleanedFormData);
+    const createdTicket = await mutateAsync(cleanedFormData as CanonicalTicketFormData);
 
     if (!createdTicket?.id) {
       throw new Error("Ticket created but no ID returned");
