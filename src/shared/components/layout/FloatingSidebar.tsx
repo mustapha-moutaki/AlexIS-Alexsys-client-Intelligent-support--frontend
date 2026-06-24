@@ -42,6 +42,7 @@ export default function FloatingSidebar({ isExpanded, setIsExpanded }: any) {
 return user?.role !== undefined && item.roles.includes(user.role);
   });
 
+  
   // handle logout
   const { mutate, isPending, error } = useLogout();
   if (error) {
