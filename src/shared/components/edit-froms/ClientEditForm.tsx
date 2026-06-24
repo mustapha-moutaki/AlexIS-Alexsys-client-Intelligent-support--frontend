@@ -27,7 +27,7 @@ export default function ClientEditForm({ client }: Props) {
   const [previewImage, setPreviewImage] = useState<string | null>(
     client.profilePicture || null
   );
-  const [rating, setRating] = useState(client.satisfactionRating || 0);
+  const [rating, setRating] = useState(0);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
