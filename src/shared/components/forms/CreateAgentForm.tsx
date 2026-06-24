@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Camera } from "lucide-react";
@@ -27,18 +27,17 @@ const createAgentSchema = z.object({
   phoneNumber: z.string().min(10, "Invalid number"),
   profilePicture: z.instanceof(File).optional(),
   specialization: z.enum(SpecializationEnum, {
-  message: "Required",
-}),
-level: z.enum(AgentLevelEnum, {
-  message: "Required",
-}),
-availabilityStatus: z.enum(AvailabilityEnum, {
-  message: "Required",
-}),
-
+    message: "Required",
+  }),
+  level: z.enum(AgentLevelEnum, {
+    message: "Required",
+  }),
+  availabilityStatus: z.enum(AvailabilityEnum, {
+    message: "Required",
+  }),
   averageResolutionTime: z.coerce.number().min(0),
   performanceRating: z.coerce.number().min(1).max(5),
-  });
+});
 
 type CreateAgentInputs = z.infer<typeof createAgentSchema>;
 
@@ -95,14 +94,16 @@ export default function CreateAgentForm({ onSubmit, isLoading }: Props) {
   const [preview, setPreview] = useState<string | null>(null);
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<CreateAgentInputs>({
-    resolver: zodResolver(createAgentSchema),
+  const form = useForm<CreateAgentInputs>({
+    resolver: zodResolver(createAgentSchema) as any,
     defaultValues: {
-      specialization: undefined,
-      level: undefined,
-      availabilityStatus: undefined,
+      specialization: undefined as any,
+      level: undefined as any,
+      availabilityStatus: undefined as any,
     },
   });
+
+  const { register, handleSubmit, setValue, formState: { errors } } = form;
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -132,7 +133,7 @@ export default function CreateAgentForm({ onSubmit, isLoading }: Props) {
 
   return (
     <div style={{ width: "100%", height: "100%", padding: "24px", display: "flex", flexDirection: "column", overflow: "auto", boxSizing: "border-box", background: "transparent" }}>
-      
+
       {/* Header */}
       <div style={{ marginBottom: "24px", paddingBottom: "16px", borderBottom: `1px solid ${BORDER}` }}>
         <p style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: BRAND, margin: "0 0 4px" }}>
@@ -147,7 +148,7 @@ export default function CreateAgentForm({ onSubmit, isLoading }: Props) {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} style={{ display: "flex", flexDirection: "column", gap: "18px", flex: 1 }}>
-        
+
         {/* Avatar Section */}
         <div style={{ display: "flex", justifyContent: "center", marginBottom: "8px" }}>
           <div style={{ position: "relative", width: 64, height: 64 }}>
