@@ -114,6 +114,7 @@ const isPending = isCreatingTicket || isProcessing;
         </div>
 
         {/* Form Component */}
+        
         <CreateTicketFromAdmin
          onCreate = {handleCreate}
          categories = {categories || []}
