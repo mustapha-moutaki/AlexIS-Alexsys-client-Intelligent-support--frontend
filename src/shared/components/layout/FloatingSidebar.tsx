@@ -11,7 +11,6 @@ import { useLogout } from "@/src/hooks/useAuth";
 import toast from "react-hot-toast";
 import useAuthStore from "@/src/store/authStore";
 
-// 1. Added 'roles' property to define who can see what
 const navItems = [
   { id: "dash", label: "Dashboard", icon: LayoutGrid, path: "/dashboard", roles: ["ADMIN"] },
   { id: "dash-agent", label: "Dashboard", icon: LayoutGrid, path: "/dashboard/agent/overview", roles: ["AGENT"] },
@@ -39,10 +38,10 @@ export default function FloatingSidebar({ isExpanded, setIsExpanded }: any) {
     // If no roles are defined for the item, it's public for all logged-in users
     if (!item.roles) return true;
     // Check if user's role matches one of the allowed roles
-return user?.role !== undefined && item.roles.includes(user.role);
+    return user?.role !== undefined && item.roles.includes(user.role);
   });
 
-  
+
   // handle logout
   const { mutate, isPending, error } = useLogout();
   if (error) {
