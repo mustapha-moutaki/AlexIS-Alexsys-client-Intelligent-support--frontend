@@ -22,7 +22,7 @@ export default function AgentUpdateModal({
         </div>
 
         <div className="p-6 space-y-2">
-          {agents?.map((agent:any) => (
+          {agents.length > 0 ? agents?.map((agent:any) => (
             <button
               key={agent.id}
               onClick={() => setSelectedAgent(agent.id)}
@@ -34,7 +34,10 @@ export default function AgentUpdateModal({
             >
               {agent.firstName + " " + agent.lastName}
             </button>
-          ))}
+          )):(
+            <p className="text-center text-gray-500">No agents available</p>
+          )
+        }
         </div>
 
         {/* FOOTER */}
