@@ -58,7 +58,7 @@ export default function ClientTicketsPage() {
   };
 
   const handlePageChange = (newPage: number) => {
-    if (newPage >= 0 && newPage < totalPages) {
+    if (newPage >= 0 && newPage < totalPages.data) {
       setPage(newPage);
     }
   };
