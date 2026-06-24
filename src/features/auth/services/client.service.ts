@@ -5,6 +5,7 @@ import { ClientCreateRequest } from "@/src/types/ClientCreateRequest";
 import { ClientEditProfile } from "@/src/types/ClientEditProfile";
 import { ClientEditRequest } from "@/src/types/ClientEditRequest";
 import { MyTicketSummaryResponse } from "@/src/types/MyTicketSummaryResponse";
+import { PageResponse } from "@/src/types/PageResponse";
 
 const ADMINENDPOINT = "/admin/clients";
 const CLIENTENDPOINT = "/client/tickets";
@@ -97,7 +98,7 @@ type GetTicketWithPagination = {
 }
 
 export const getClientTickets = async (params?: GetTicketWithPagination) =>{
-    const res = await api.get<ApiResponse<MyTicketSummaryResponse[]>>(CLIENTENDPOINT,{
+    const res = await api.get<PageResponse<MyTicketSummaryResponse[]>>(CLIENTENDPOINT,{
         params:{
             page:params?.page || 0,
             size:params?.size || 10,
