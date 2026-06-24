@@ -30,9 +30,9 @@ interface TicketFormData {
   assignedToId?: string;
 }
 
-// handle create ticket request
 const {mutateAsync, isPending: isCreatingTicket}= useCreateTicketByAdmin();
-// fetch categories, clients, agents
+
+
 const {data: categories} = useCategories();
 const {data: clients} = useClients();
 const {data: agents} = useAgents();
@@ -110,9 +110,7 @@ const isPending = isCreatingTicket || isProcessing;
                           { name: "new" },
                        ]}
                      />
-            {/* <p className="text-slate-500 text-sm">
-              Dashboard / Tickets / <span className="text-blue-600">New Ticket</span>
-            </p> */}
+           
           </div>
         </div>
 
