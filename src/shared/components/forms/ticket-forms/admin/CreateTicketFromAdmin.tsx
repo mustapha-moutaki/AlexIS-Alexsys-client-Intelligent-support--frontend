@@ -192,7 +192,7 @@ export default function CreateTicketFromAdmin({ onCreate, categories, clients, a
             </label>
             <select name="categoryId" value={formData.categoryId} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-blue-500 transition-all">
               <option value="" disabled>Select Category</option>
-              {categories?.content.map((c:any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              {(categories?.content || []).map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
 
@@ -202,7 +202,11 @@ export default function CreateTicketFromAdmin({ onCreate, categories, clients, a
             </label>
             <select value={formData.clientId} onChange={handleChange} name="clientId" className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-blue-500 transition-all">
               <option value="" disabled >Select Client</option>
-              {clients?.content.map((c:Client) => <option key={c.id} value={c.id}>{c.id + " - " + c.firstName + " " + c.lastName}</option>)}
+              
+              {(clients?.content || []).map((c:Client) => 
+              <option key={c.id} value={c.id}>{c.id + " - " + c.firstName + " " + c.lastName}
+              </option>
+            )}
             </select>
           </div>
 
@@ -219,7 +223,7 @@ export default function CreateTicketFromAdmin({ onCreate, categories, clients, a
   {/* The "None" option */}
   <option value="">Not Yet Assigned</option>
 
-  {agents?.content.map((a: Agent) => (
+  {(agents?.content || []).map((a: Agent) => (
     <option key={a.id} value={a.id}>
       {`${a.id} - ${a.firstName} ${a.lastName} - ${a.level} - ${a.availabilityStatus}`}
     </option>
