@@ -153,7 +153,7 @@ if(isLoadingAdmins || isLoadingAgents || isLoadingClients){
 
     />
      }
-     {activeTab === "Agents" && <AgentsList agents={agentsData?.content ?? []} 
+     {activeTab === "Agents" && <AgentsList agents={agentsData ?? []} 
       onDelete={handleDelete}
      />}
      

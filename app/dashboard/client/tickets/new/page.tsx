@@ -13,7 +13,7 @@ import { CreateClientTicketPayload } from "@/src/types/CreateClientTicketPayload
 export default function CreateTicketPage() {
   const router = useRouter();
   const { data, isPending: isCategoriesPending, error } = useCategories();
-  const categories = data?.content || [];
+  const categories = data || [];
   
   const { mutateAsync: createTicket, isPending: isCreatingTicket } = useCreateTicketByClient();
   

@@ -491,8 +491,7 @@ texts={["Smarter", "Faster", "Instantly", "With AI"]}
       {/* Vertical loop with deceleration on hover */}
       <LogoLoop
         logos={techLogos}
-    useCustomRender={false}
-  />
+      />
 
     </div>
 

@@ -43,7 +43,7 @@ export const createClient = async (data: ClientCreateRequest) => {
 }
 
 export const getClients = async(params?: Params)=>{
-    const res = await api.get<ApiResponse<Client[]>>(`${ADMINENDPOINT}`, {
+    const res = await api.get<ApiResponse<PageResponse<Client>>>(`${ADMINENDPOINT}`, {
         params:{
             page:params?.page || 0,
             size:params?.size || 10,

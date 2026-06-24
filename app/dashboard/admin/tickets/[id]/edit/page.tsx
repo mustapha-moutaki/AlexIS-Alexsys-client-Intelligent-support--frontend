@@ -60,7 +60,7 @@ export default function EditTicketPage(){
          ticket = {ticket}
          isPending = {isPending}
          categories={categories || []}
-         clients={clients || []}
+         clients={clients?.content || []}
          agents={agents || []}
         handleUpdate={handleUpdate}
         isUpdating={isUpdating}

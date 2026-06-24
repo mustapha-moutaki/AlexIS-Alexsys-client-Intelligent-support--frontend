@@ -25,7 +25,7 @@ export default function CategoriesList({ categories = [] }: { categories: Catego
   // 1. Logic: Filter
 const filtered = useMemo(
   () =>
-    (categories?.content || []).filter(c =>
+    (categories || []).filter(c =>
       c.name.toLowerCase().includes(search.toLowerCase())
     ),
   [categories, search]

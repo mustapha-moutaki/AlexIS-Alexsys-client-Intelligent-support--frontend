@@ -123,7 +123,7 @@ const isPending = isCreatingTicket || isProcessing;
         <CreateTicketFromAdmin
          onCreate = {handleCreate}
          categories = {categories || []}
-         clients = {clients || []}
+         clients = {clients?.content || []}
          agents = {agents || []}
          isPending = {isPending}
          />

@@ -129,7 +129,7 @@ export default function UserDetailPage() {
               <InfoRow label="User ID" value={String(user.id)} />
               <InfoRow label="Username" value={user.username || "—"} />
               <InfoRow label="Email" value={user.email} />
-              <InfoRow label="Role" value={user.role} />
+              <InfoRow label="Role" value={user.role || ""} />
             </InfoCard>
 
             <InfoCard title="Security & Access">
