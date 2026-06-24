@@ -4,11 +4,12 @@ interface BreadcrumbItem {
   route?: string;
 }
 
+
 export default function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
   return (
     <div className="flex items-center gap-1.5 text-[10px] text-black/45">
       {items.map((item, index) => {
-        const displayText = item.name || item.label || ""; // ← use whichever exists
+        const displayText = item.name || item.label || ""; 
 
         return (
           <div key={index} className="flex items-center gap-1.5">
