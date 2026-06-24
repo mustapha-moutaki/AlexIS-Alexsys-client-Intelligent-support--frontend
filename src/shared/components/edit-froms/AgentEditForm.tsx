@@ -2,6 +2,7 @@
 
 import React, { useRef, useState } from "react";
 import { Agent } from "@/src/types/Agent";
+import { AgentEditRequest } from "@/src/types/AgentEditRequest";
 import { useUpdateAgent } from "@/src/hooks/useAgent"; // Assuming this exists
 import Breadcrumbs from "../ui/Breadcrumbs";
 import {
@@ -50,7 +51,7 @@ export default function AgentEditForm({ user }: Props) {
         deleted,
         performanceRating: Number(formData.get("performanceRating")),
         averageResolutionTime: Number(formData.get("averageResolutionTime")),
-      },
+      } as AgentEditRequest,
     });
   };
 
