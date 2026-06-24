@@ -46,16 +46,13 @@ const isPending = isCreatingTicket || isProcessing;
   try {
     setIsProcessing(true);
 
-    // --- FIX START: Clean the payload ---
     const cleanedFormData = { ...formData };
     
-    // If assignedToId is empty string, null, or undefined, remove it from the body
     if (!cleanedFormData.assignedToId) {
       delete cleanedFormData.assignedToId;
     }
-    // --- FIX END ---
+    
 
-    // 1. Use cleanedFormData instead of formData
     const createdTicket = await mutateAsync(cleanedFormData as CanonicalTicketFormData);
 
     if (!createdTicket?.id) {
