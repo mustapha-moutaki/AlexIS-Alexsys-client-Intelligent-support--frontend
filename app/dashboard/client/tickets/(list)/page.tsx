@@ -31,9 +31,12 @@ export default function ClientTicketsPage() {
   // --- Fetching Data (Assuming your hook accepts page and status) ---
   const { data, isLoading, error, refetch } = useClientTickets({page, size:10});
 
-  const tickets = data || [];
-  const totalPages = data || 0;
-  const currentPage = data || 0;
+  // const tickets = data?.data?.content || [];
+  // const totalPages = data?.data?.totalPages || 0;
+  // const currentPage = data?.data?.number || 0;
+const tickets = data?.content ?? [];
+const totalPages = data?.totalPages ?? 0;
+const currentPage = data?.number ?? 0;
 
   // Local filtering for search (Title or ID)
   const filteredTickets = useMemo(() => {
@@ -58,7 +61,7 @@ export default function ClientTicketsPage() {
   };
 
   const handlePageChange = (newPage: number) => {
-    if (newPage >= 0 && newPage < totalPages.data) {
+    if (newPage >= 0 && newPage < totalPages) {
       setPage(newPage);
     }
   };
