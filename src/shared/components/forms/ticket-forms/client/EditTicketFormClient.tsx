@@ -102,7 +102,7 @@ export default function EditTicketFormClient({ ticket, categories, handleUpdate,
             required
           >
             <option value="">Select Category</option>
-            {categories.map((cat: any) => (
+            {(categories || []).map((cat: any) => (
               <option key={cat.id} value={cat.id}>{cat.name}</option>
             ))}
           </select>
