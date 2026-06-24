@@ -23,10 +23,13 @@ export default function CategoriesList({ categories = [] }: { categories: Catego
   const { mutate: deleteCategory } = useDeleteCategory();
 
   // 1. Logic: Filter
-  const filtered = useMemo(() => categories.filter(c => 
-    c.name.toLowerCase().includes(search.toLowerCase())
-  ), [categories, search]);
-
+const filtered = useMemo(
+  () =>
+    (categories?.content || []).filter(c =>
+      c.name.toLowerCase().includes(search.toLowerCase())
+    ),
+  [categories, search]
+);
   // 2. Handlers
   const handleCreate = (data: any) => {
     createCategory(data, { 
@@ -78,7 +81,7 @@ export default function CategoriesList({ categories = [] }: { categories: Catego
           onChange={(e) => setSearch(e.target.value)}
         />
         
-        {filtered.map((cat) => (
+        {(filtered || []).map((cat) => (
           <div key={cat.id} className="grid grid-cols-[60px_1fr_2fr_100px_80px] p-4 border-b items-center text-sm last:border-0 hover:bg-gray-50/50">
             <span className="text-gray-300 font-mono text-[10px]">#{cat.id}</span>
             <span className="font-bold text-gray-800">{cat.name}</span>
