@@ -60,11 +60,7 @@ const currentPage = data?.number ?? 0;
     }
   };
 
-  // const handlePageChange = (newPage: number) => {
-  //   if (newPage >= 0 && newPage < totalPages) {
-  //     setPage(newPage);
-  //   }
-  // };
+
 const handlePageChange = (newPage: number) => {
   if (newPage >= 0 && newPage < (data?.totalPages || 0)) {
     setPage(newPage);
