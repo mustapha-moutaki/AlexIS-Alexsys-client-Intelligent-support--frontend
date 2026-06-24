@@ -60,11 +60,16 @@ const currentPage = data?.number ?? 0;
     }
   };
 
-  const handlePageChange = (newPage: number) => {
-    if (newPage >= 0 && newPage < totalPages) {
-      setPage(newPage);
-    }
-  };
+  // const handlePageChange = (newPage: number) => {
+  //   if (newPage >= 0 && newPage < totalPages) {
+  //     setPage(newPage);
+  //   }
+  // };
+const handlePageChange = (newPage: number) => {
+  if (newPage >= 0 && newPage < (data?.totalPages || 0)) {
+    setPage(newPage);
+  }
+};
 
   return (
     <div className="min-h-screen bg-slate-50/50 p-6 space-y-6">
