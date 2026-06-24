@@ -26,12 +26,19 @@ const createAgentSchema = z.object({
   password: z.string().min(5, "Min 5 characters"),
   phoneNumber: z.string().min(10, "Invalid number"),
   profilePicture: z.instanceof(File).optional(),
-  specialization: z.enum(SpecializationEnum, { required_error: "Required" }),
+  specialization: z.enum(SpecializationEnum, {
+  message: "Required",
+}),
+level: z.enum(AgentLevelEnum, {
+  message: "Required",
+}),
+availabilityStatus: z.enum(AvailabilityEnum, {
+  message: "Required",
+}),
+
   averageResolutionTime: z.coerce.number().min(0),
   performanceRating: z.coerce.number().min(1).max(5),
-  level: z.enum(AgentLevelEnum, { required_error: "Required" }),
-  availabilityStatus: z.enum(AvailabilityEnum, { required_error: "Required" }),
-});
+  });
 
 type CreateAgentInputs = z.infer<typeof createAgentSchema>;
 
