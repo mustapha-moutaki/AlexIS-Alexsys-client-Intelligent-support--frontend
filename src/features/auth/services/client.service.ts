@@ -98,7 +98,7 @@ type GetTicketWithPagination = {
 }
 
 export const getClientTickets = async (params?: GetTicketWithPagination) =>{
-    const res = await api.get<PageResponse<MyTicketSummaryResponse[]>>(CLIENTENDPOINT,{
+    const res = await api.get<ApiResponse<PageResponse<MyTicketSummaryResponse>>>(CLIENTENDPOINT,{
         params:{
             page:params?.page || 0,
             size:params?.size || 10,
