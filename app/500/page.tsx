@@ -1,4 +1,4 @@
-// app/500/page.tsx
+"use client";
 export default function ServerErrorPage() {
     return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6">
