@@ -1,3 +1,6 @@
+
+import Link from "next/link";
+
 export default function NoFoundPage() {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6">
@@ -48,12 +51,12 @@ export default function NoFoundPage() {
             Go Back
           </button>
 
-          <button
-            onClick={() => (window.location.href = "/")}
-            className="flex-1 h-12 rounded-xl bg-sky-500 text-white font-medium hover:bg-sky-600 transition"
-          >
-            Go Home
-          </button>
+          <Link
+          href="/"
+          className="flex-1 h-12 rounded-xl bg-sky-500 text-white font-medium hover:bg-sky-600 transition flex items-center justify-center"
+        >
+          Go Home
+        </Link>
         </div>
 
         <p className="mt-8 text-xs text-slate-400">
