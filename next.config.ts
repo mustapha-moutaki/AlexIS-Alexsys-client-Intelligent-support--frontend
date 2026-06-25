@@ -1,13 +1,20 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-
-   typescript: {
-    ignoreBuildErrors: true,   // ← Skip type checking during build
+  // مؤقتاً — حتى نصلح كل Types
+  typescript: {
+    ignoreBuildErrors: true,
   },
   eslint: {
-    ignoreDuringBuilds: true,  // ← Skip ESLint during build
+    ignoreDuringBuilds: true,
+  },
+  
+  // مهمة — منع مشاكل Static Generation
+  output: "standalone",
+  
+  // إذا كاتستعمل صور — منع optimization اللي كايتعلق
+  images: {
+    unoptimized: true,
   },
 };
 
