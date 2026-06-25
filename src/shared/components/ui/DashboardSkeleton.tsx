@@ -2,10 +2,16 @@
 import React from "react";
 
 // 1. The Animation Component
-const Shimmer = ({ className, style }) => (
+interface ShimmerProps {
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+const Shimmer = ({ className, style }: ShimmerProps) => (
   <div
+    className={className}
     style={{
-background: "linear-gradient(90deg, #ffffff 25%, #f5f5f5 50%, #ffffff 75%)",
+      background: "linear-gradient(90deg, #ffffff 25%, #f5f5f5 50%, #ffffff 75%)",
       backgroundSize: "200% 100%",
       animation: "shimmer 1.5s infinite linear",
       borderRadius: "0.25rem",
@@ -71,7 +77,7 @@ export default function DashboardSkeleton() {
           <Shimmer style={{ width: "200px", height: "1rem" }} />
           <Shimmer style={{ width: "80px", height: "1rem" }} />
         </div>
-        
+
         {[1, 2, 3, 4].map((i) => (
           <div key={i} style={{ 
             display: "flex", 
