@@ -1,3 +1,7 @@
+"use client"
+
+import Link from "next/link";
+
 export default function UnauthorizedPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center px-6">
@@ -42,12 +46,12 @@ export default function UnauthorizedPage() {
             Go Back
           </button>
 
-          <button
-            onClick={() => (window.location.href = "/login")}
-            className="flex-1 h-12 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition shadow-md"
-          >
-            Login Again
-          </button>
+          <Link
+  href="/login"
+  className="flex-1 h-12 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition shadow-md"
+>
+  Login Again
+</Link>
         </div>
 
         {/* Footer */}
